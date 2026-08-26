@@ -21,6 +21,7 @@ export const site = {
     { id: 'projects', title: '项目与产出' },
     { id: 'skills', title: '能力与方法' },
     { id: 'about', title: '关于我' },
-    { id: 'resume', title: '简历' }
+    { id: 'resume', title: '简历' },
+    { id: 'contact', title: '联系' }
   ]
 } as const;

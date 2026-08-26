@@ -7,12 +7,11 @@ const { navItems } = Astro.props;
     <a class="site-nav-brand" href="#top" aria-label="返回首页">yukie</a>
 
     <nav class="site-nav-links" aria-label="页面导航">
-      {navItems.map((item, index) => (
-        <>
-          {index > 0 ? <span class="site-nav-separator" aria-hidden="true">|</span> : null}
-          <a href={item.href}>{item.label}</a>
-        </>
-      ))}
+      {navItems.map((item) => <a href={item.href}>{item.label}</a>)}
     </nav>
+
+    <div class="site-nav-actions">
+      <a class="site-nav-contact" href="#contact">联系</a>
+    </div>
   </div>
 </header>
