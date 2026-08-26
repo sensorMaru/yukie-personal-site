@@ -1,0 +1,19 @@
+---
+const { site } = Astro.props;
+---
+
+<section class="hero" id="top">
+  <div class="hero-copy">
+    <p class="hero-eyebrow">{site.brand}</p>
+    <h1 class="hero-name">{site.name}</h1>
+    <p class="hero-roman">{site.englishName}</p>
+    <div class="hero-meta" aria-label="站点信息">
+      <span class="meta-chip">yukie.sensormaru.com</span>
+      <span class="meta-chip">Personal site</span>
+    </div>
+  </div>
+
+  <figure class="hero-photo">
+    <img src={site.portrait.src} alt={site.portrait.alt} loading="eager" decoding="async" />
+  </figure>
+</section>

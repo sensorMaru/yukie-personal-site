@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteNav from '../components/SiteNav.astro';
+import Hero from '../components/Hero.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import { site } from '../content/site';
+---
+
+<BaseLayout title={site.title} description={site.description}>
+  <main class="page-shell">
+    <SiteNav navItems={site.navItems} />
+    <Hero site={site} />
+
+    {site.sections.map((section) => (
+      <section class="content-section" aria-labelledby={section.id}>
+        <SectionHeading id={section.id} title={section.title} />
+      </section>
+    ))}
+  </main>
+</BaseLayout>

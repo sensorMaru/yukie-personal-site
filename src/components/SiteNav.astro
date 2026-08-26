@@ -1,0 +1,18 @@
+---
+const { navItems } = Astro.props;
+---
+
+<header class="site-nav">
+  <div class="site-nav-shell">
+    <a class="site-nav-brand" href="#top" aria-label="返回首页">yukie</a>
+
+    <nav class="site-nav-links" aria-label="页面导航">
+      {navItems.map((item, index) => (
+        <>
+          {index > 0 ? <span class="site-nav-separator" aria-hidden="true">|</span> : null}
+          <a href={item.href}>{item.label}</a>
+        </>
+      ))}
+    </nav>
+  </div>
+</header>
