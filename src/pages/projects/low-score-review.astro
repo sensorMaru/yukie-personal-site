@@ -1,0 +1,445 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import '../../styles/case-study.css';
+
+const metrics = [
+  { value: '998,771', label: '订单数' },
+  { value: '44,545', label: '评价数' },
+  { value: '1,998', label: '低分评价数' },
+  { value: '0.2%', label: '低分评价率' },
+];
+
+const comparisons = [
+  { dimension: '数据管理', beforeKey: '后台 + 线下台账', before: '评价数据与跟进信息分散', afterKey: '一条评价，一份完整记录', after: '集中展示基础信息、回访、判责和状态' },
+  { dimension: '任务触发', beforeKey: '人工筛选 + 群内通知', before: '需要逐条识别并主动寻找处理人', afterKey: '规则自动识别并推送', after: '按下单时间与评分触发待回访任务' },
+  { dimension: '跨部门协作', beforeKey: '群聊反复确认', before: '客服、区域运营与体验团队来回同步进度', afterKey: '同一详情页，分角色维护', after: '每个角色只编辑自己负责的信息模块' },
+  { dimension: '判责依据', beforeKey: '证据分散', before: '回访文字、图片和录音难以关联与复核', afterKey: '证据与评价绑定', after: '单条评价最多上传 9 个附件，统一沉淀' },
+  { dimension: '过程追踪', beforeKey: '人工同步，无历史记录', before: '无法确认当前进度和字段变化', afterKey: '状态与日志线上可见', after: '记录操作人、时间、字段与文件变化' },
+];
+
+const permissions = [
+  ['全体员工', '查看评价基础信息、回访记录与判责结果', '—'],
+  ['客服 / 区域运营', '查看完整详情', '低分原因、用户跟进情况、回访附件'],
+  ['用户体验团队', '查看完整详情', '评价有效性、无效原因、判责结果'],
+  ['责任部门 / 责任人', '查看判责与相关证据', '接收结果并承接后续处理'],
+];
+
+const filters = ['下单时间（默认近 30 天）','换电订单号','换电记录单号','省份 / 城市','车型','车辆运营类型','车牌号','是否新用户','处理状态','是否有效','无效原因','判责结果'];
+---
+
+<BaseLayout title="低分评价管理系统｜Yukie 作品集" description="将线下低分评价跟进重构为可追踪、可判责的跨部门处理流程。">
+  <main class="case-page">
+    <div class="reading-progress" aria-hidden="true"><span data-reading-progress></span></div>
+    <header class="case-nav">
+      <a class="case-brand" href="/" aria-label="返回 Yukie 作品集首页">YUKIE.</a>
+      <nav aria-label="案例章节">
+        <a href="#background">背景</a>
+        <a href="#solution">方案</a>
+        <a href="#flow">流程</a>
+        <a href="#details">细节</a>
+        <a href="#efficiency">效率</a>
+      </nav>
+      <a class="back-home" href="/#projects">返回项目 <span aria-hidden="true">↙</span></a>
+    </header>
+
+    <section class="case-hero" aria-labelledby="case-title">
+      <div class="hero-layout">
+        <div class="hero-heading">
+          <p class="case-kicker">CASE STUDY · 03</p>
+          <h1 id="case-title">低分评价管理系统</h1>
+          <p class="hero-deck">让每一条低分评价，都有明确的跟进路径。</p>
+          <p class="hero-lead">原系统只能记录订单与评价，无法管理低分产生后的处理进度。回访、判责和跨部门交接全部发生在线下，系统内看不到由谁处理、处理到哪一步、最终责任归属。</p>
+        </div>
+        <div class="hero-copy">
+          <dl class="case-meta">
+            <div><dt>项目</dt><dd>宁德时代 · 低分评价管理</dd></div>
+            <div><dt>角色</dt><dd>产品实习生</dd></div>
+            <div><dt>工作范围</dt><dd>需求分析 · 流程/权限设计 · PRD</dd></div>
+            <div><dt>项目状态</dt><dd>完成方案与评审，未跟进至上线</dd></div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <section class="case-summary" aria-label="项目摘要">
+      <article>
+        <span>发现的问题</span>
+        <p><b class="summary-emoji" aria-hidden="true">⚠️</b> 系统只记录评价，回访、判责和催办散落在线下台账与群聊，无法看到处理进度。</p>
+      </article>
+      <article>
+        <span>产品决策</span>
+        <p><b class="summary-emoji" aria-hidden="true">🧩</b> 不重做评价系统，而是在原后台补齐“识别 → 回访 → 判责 → 通知 → 留痕”的闭环。</p>
+      </article>
+      <article>
+        <span>衡量价值</span>
+        <p><b class="summary-emoji" aria-hidden="true">✅</b> 不是功能上线数量，而是低分评价能否被及时接手、完成判责并可追溯地闭环。</p>
+      </article>
+    </section>
+
+    <div class="case-layout">
+      <aside class="case-index" aria-label="案例目录">
+        <p>INDEX</p>
+        <nav>
+          <a href="#background"><span>01</span><strong>问题背景</strong></a>
+          <a href="#solution"><span>02</span><strong>方案决策</strong></a>
+          <a href="#flow"><span>03</span><strong>核心流程</strong></a>
+          <a href="#permission"><span>04</span><strong>协作权限</strong></a>
+          <a href="#details"><span>05</span><strong>产品细节</strong></a>
+          <a href="#efficiency"><span>06</span><strong>效率差异</strong></a>
+          <a href="#boundary"><span>07</span><strong>上线边界</strong></a>
+        </nav>
+      </aside>
+      <div class="case-content">
+
+    <section class="baseline-section" id="background" aria-labelledby="background-title">
+      <div class="section-label"><span>01</span><p>BACKGROUND</p></div>
+      <div class="baseline-copy">
+        <p class="overline">处理什么问题</p>
+        <h2 id="background-title">原系统记录了评价，<br />却没有管理评价之后发生的事。</h2>
+        <p>用户提交评价后，后台只能保存订单与评价信息。低分评价的筛选、回访安排、责任判断和处理结果都转移到线下台账与群聊中完成，系统内看不到完整进度。</p>
+      </div>
+      <div class="metric-board" aria-label="项目调研期业务数据">
+        <p class="metric-note">现状数据 · 统计口径：2026.01–03，全国</p>
+        <div class="metric-grid">
+          {metrics.map(metric => <div><strong>{metric.value}</strong><span>{metric.label}</span></div>)}
+        </div>
+      </div>
+      <div class="old-process" aria-label="原处理方式">
+        <p class="wide-caption">改造前 · 一条低分评价如何被处理</p>
+        <div class="old-process-track">
+          <span>后台记录评价</span><i>→</i><span>人工筛选低分</span><i>→</i><span>导出线下台账</span><i>→</i><span>群聊催办回访</span><i>→</i><span>线下完成判责</span><i>→</i><span>人工同步结果</span>
+        </div>
+      </div>
+      <div class="why-block">
+        <p class="overline">为什么必须处理</p>
+        <ol>
+          <li><strong>规模已经不能依赖人工记忆。</strong><span>统计期内有 1,998 条低分评价，需要稳定而非临时的处理方式。</span></li>
+          <li><strong>低分原因跨越多个责任主体。</strong><span>问题可能来自服务运营、产品体验、产品故障、权益政策或资源配置，单一部门无法独立处理。</span></li>
+          <li><strong>判责结果影响后续业务与指标。</strong><span>评价是否有效、责任如何归属，会影响满意度统计，也决定后续由谁改进。</span></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="case-section" id="solution" aria-labelledby="solution-overview-title">
+      <div class="section-label"><span>02</span><p>SOLUTION</p></div>
+      <div class="section-intro">
+        <p class="overline">怎么解决</p>
+        <h2 id="solution-overview-title">把散落在后台、表格和群聊中的动作，收进同一条线上流程。</h2>
+        <p>方案不是推翻原评价后台，而是在原有评价数据上补齐任务触发、回访、判责、通知、权限与日志能力。</p>
+      </div>
+      <div class="solution-principles">
+        <article><span>01</span><h3>规则识别</h3><p>用下单时间与评分判断是否进入低分处理流程。</p></article>
+        <article><span>02</span><h3>角色接力</h3><p>客服/区域运营回访，体验团队判责，责任部门承接。</p></article>
+        <article><span>03</span><h3>关键通知</h3><p>仅在任务产生和判责完成时推送，明确下一位处理人。</p></article>
+        <article><span>04</span><h3>证据留痕</h3><p>回访附件、字段修改、操作人和时间统一进入系统。</p></article>
+      </div>
+
+      <div class="comparison-table" aria-label="系统改造前后对比">
+        <div class="comparison-row header"><span>对比维度</span><span class="before-label">改造前</span><span class="after-label">方案设计后</span></div>
+        {comparisons.map(row => (
+          <div class="comparison-row">
+            <strong>{row.dimension}</strong>
+            <span class="before-text"><b>{row.beforeKey}</b><small>{row.before}</small></span>
+            <span class="after-text"><b>{row.afterKey}</b><small>{row.after}</small></span>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="case-section flow-section" id="flow" aria-labelledby="flow-title">
+      <div class="section-label"><span>03</span><p>CORE FLOW</p></div>
+      <div class="section-intro">
+        <p class="overline">核心业务逻辑</p>
+        <h2 id="flow-title">只有“有效低分评价”进入回访和判责。</h2>
+        <p>系统先做规则过滤，再把任务交给对应角色；每一次交接都对应状态变化和信息推送。</p>
+      </div>
+      <figure class="swimlane-flow" aria-labelledby="flow-caption">
+        <svg viewBox="0 0 1000 520" role="img" aria-labelledby="flow-svg-title flow-svg-desc">
+          <title id="flow-svg-title">低分评价管理泳道流程</title>
+          <desc id="flow-svg-desc">巧克力后台先判断下单时间与评分；有效低分触发首次通知，由客服或区域运营完成回访取证，再由用户体验团队完成有效性与责任判定，最后将结果通知责任部门。</desc>
+          <defs>
+            <pattern id="flow-grid" width="32" height="32" patternUnits="userSpaceOnUse">
+              <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#e7eaf0" stroke-width="1" />
+            </pattern>
+            <marker id="flow-arrowhead" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#a6adb8" />
+            </marker>
+          </defs>
+
+          <rect x="1" y="1" width="998" height="518" rx="20" fill="#fafbfe" stroke="#dfe3e9" stroke-width="2" />
+          <rect x="1" y="56" width="998" height="463" fill="url(#flow-grid)" opacity=".68" />
+          <path d="M1 56H999 M520 1V519 M760 1V519" fill="none" stroke="#dfe3e9" stroke-width="1.5" />
+
+          <g class="lane-title">
+            <text x="260" y="35" text-anchor="middle">巧克力后台</text>
+            <text x="640" y="35" text-anchor="middle">客服 / 区域运营</text>
+            <text x="880" y="35" text-anchor="middle">用户体验 / 责任部门</text>
+          </g>
+
+          <g class="flow-line" fill="none" stroke="#a6adb8" stroke-width="2" marker-end="url(#flow-arrowhead)">
+            <path d="M98 126H122" />
+            <path d="M224 126H244" />
+            <path d="M326 126H350" />
+            <path d="M444 126H457" />
+            <path d="M539 126H570" />
+            <path d="M630 172V244" />
+            <path d="M694 298H786" />
+            <path d="M856 354V405" />
+            <path d="M285 167V230" />
+            <path d="M498 167V230" />
+          </g>
+
+          <g class="flow-branch-label">
+            <text x="334" y="116">是</text>
+            <text x="292" y="205">否</text>
+            <text x="548" y="116">是</text>
+            <text x="505" y="205">否</text>
+          </g>
+
+          <g class="flow-node flow-start">
+            <rect x="28" y="104" width="70" height="44" rx="22" />
+            <text x="63" y="131" text-anchor="middle">开始</text>
+          </g>
+
+          <g class="flow-node">
+            <rect x="122" y="88" width="102" height="76" rx="10" />
+            <text x="173" y="119" text-anchor="middle">用户产生</text>
+            <text x="173" y="142" text-anchor="middle">评价</text>
+          </g>
+
+          <g class="flow-decision">
+            <path d="M285 85L326 126L285 167L244 126Z" />
+            <text x="285" y="119" text-anchor="middle">下单时间</text>
+            <text x="285" y="139" text-anchor="middle">是否有效</text>
+          </g>
+
+          <g class="flow-node">
+            <rect x="350" y="88" width="94" height="76" rx="10" />
+            <text x="397" y="119" text-anchor="middle">判定为</text>
+            <text x="397" y="142" text-anchor="middle">有效</text>
+          </g>
+
+          <g class="flow-decision">
+            <path d="M498 85L539 126L498 167L457 126Z" />
+            <text x="498" y="119" text-anchor="middle">是否 1–3 星</text>
+            <text x="498" y="139" text-anchor="middle">低分评价</text>
+          </g>
+
+          <g class="flow-node flow-muted">
+            <rect x="238" y="230" width="94" height="64" rx="10" />
+            <text x="285" y="257" text-anchor="middle">判定无效</text>
+            <text x="285" y="278" text-anchor="middle">直接归档</text>
+          </g>
+
+          <g class="flow-node flow-muted">
+            <rect x="451" y="230" width="94" height="64" rx="10" />
+            <text x="498" y="257" text-anchor="middle">正常入库</text>
+            <text x="498" y="278" text-anchor="middle">无需处理</text>
+          </g>
+
+          <g class="flow-node flow-primary">
+            <rect x="570" y="80" width="120" height="92" rx="12" />
+            <text class="flow-index" x="588" y="104">01</text>
+            <text x="630" y="130" text-anchor="middle">首次通知</text>
+            <text class="flow-sub" x="630" y="151" text-anchor="middle">推送待回访任务</text>
+          </g>
+
+          <g class="flow-node">
+            <rect x="566" y="244" width="128" height="110" rx="12" />
+            <text class="flow-index" x="584" y="269">02</text>
+            <text x="630" y="300" text-anchor="middle">回访取证</text>
+            <text class="flow-sub" x="630" y="324" text-anchor="middle">原因 · 跟进 · 附件</text>
+          </g>
+
+          <g class="flow-handoff">
+            <rect x="706" y="282" width="74" height="32" rx="16" />
+            <text x="743" y="302" text-anchor="middle">上传数据</text>
+          </g>
+
+          <g class="flow-node">
+            <rect x="786" y="242" width="140" height="112" rx="12" />
+            <text class="flow-index" x="804" y="267">03</text>
+            <text x="856" y="298" text-anchor="middle">体验判责</text>
+            <text class="flow-sub" x="856" y="322" text-anchor="middle">有效性 · 责任分类</text>
+          </g>
+
+          <g class="flow-node flow-primary">
+            <rect x="786" y="405" width="140" height="84" rx="12" />
+            <text class="flow-index" x="804" y="430">04</text>
+            <text x="856" y="454" text-anchor="middle">二次通知</text>
+            <text class="flow-sub" x="856" y="475" text-anchor="middle">责任部门承接结果</text>
+          </g>
+        </svg>
+        <figcaption id="flow-caption">基于原 PRD 泳道流程重绘 · 补充无效评价与非低分评价分支</figcaption>
+      </figure>
+      <div class="rule-grid">
+        <article><span>低分定义</span><strong>1–3 星评价</strong><p>只有低分评价进入后续的回访和判责判断。</p></article>
+        <article><span>有效性规则</span><strong>依据下单时间窗口</strong><p>超出有效期的评价标记为无效，不参与后续流程。</p></article>
+        <article><span>无效分支</span><strong>无效后直接归档</strong><p>手动改为无效时，需记录恶意评价、用户责任或其他原因。</p></article>
+      </div>
+      <p class="rule-warning"><span>待统一口径</span> 原需求资料中同时出现“下单时间 &lt; 7 天”和“≤ 7 天”两种写法，进入开发前需要由业务方统一边界。</p>
+    </section>
+
+    <section class="case-section" id="permission" aria-labelledby="permission-title">
+      <div class="section-label"><span>04</span><p>PERMISSION & HANDOFF</p></div>
+      <div class="section-intro">
+        <p class="overline">跨部门如何协作</p>
+        <h2 id="permission-title">权限跟着职责走，通知跟着任务走。</h2>
+        <p>所有人都能查看同一条评价，但只有负责该环节的角色能编辑对应内容，减少字段误改和责任不清。</p>
+      </div>
+      <div class="permission-table" aria-label="角色权限矩阵">
+        <div class="permission-row header"><span>角色</span><span>查看范围</span><span>可操作内容</span></div>
+        {permissions.map(row => <div class="permission-row"><strong>{row[0]}</strong><span>{row[1]}</span><span>{row[2]}</span></div>)}
+      </div>
+      <div class="notification-logic">
+        <article><span>通知 01</span><h3>有效低分产生</h3><p>通过钉钉群机器人，将待处理订单信息推送给客服或区域运营，触发回访任务。</p><small>接收人：部门标签成员 / 对应处理角色</small></article>
+        <article><span>通知 02</span><h3>判责完成</h3><p>将判责结果推送给对应责任部门与责任人，完成下一环节交接。</p><small>接收人：责任部门 / 订单责任人</small></article>
+      </div>
+    </section>
+
+    <section class="case-section solution-section" id="details" aria-labelledby="detail-title">
+      <div class="section-label"><span>05</span><p>PRODUCT DETAILS</p></div>
+      <div class="section-intro">
+        <p class="overline">方案如何落到页面</p>
+        <h2 id="detail-title">列表负责定位任务，详情页负责完成一次处理。</h2>
+      </div>
+
+      <div class="ui-showcase">
+        <article class="ui-story">
+          <div class="ui-copy">
+            <span>01 / 评价管理列表</span><h3>集中查询与识别待办</h3>
+            <p>除基础评价数据外，新增有效性、无效原因、处理状态和判责结果，支持按业务条件快速筛选。</p>
+            <details class="spec-details"><summary>查看筛选字段</summary><ul>{filters.map(filter => <li>{filter}</li>)}</ul></details>
+          </div>
+          <div class="mock-window real-admin-mock" aria-label="按原后台界面结构脱敏复刻的低分评价列表">
+            <div class="admin-shell">
+              <aside class="admin-sidebar" aria-hidden="true">
+                <b>巧</b>
+                <span>首页</span><span>订单</span><span>车辆</span><span class="active">评价</span><span>用户</span><span>设置</span>
+              </aside>
+              <div class="admin-workspace">
+                <header class="admin-header"><strong>评价管理</strong><small>管理员 ▾</small></header>
+                <div class="admin-filter-panel">
+                  <div class="admin-filters-real">
+                    <label><span>下单时间</span><b>2026-04-14 — 2026-05-14</b></label>
+                    <label><span>换电订单号</span><b>请输入订单号</b></label>
+                    <label><span>换电记录单号</span><b>请输入记录单号</b></label>
+                    <label><span>用户手机</span><b>138****7821</b></label>
+                    <label><span>省份</span><b>全部 ▾</b></label>
+                    <label><span>城市</span><b>全部 ▾</b></label>
+                    <label><span>车型</span><b>全部车型 ▾</b></label>
+                    <label><span>车辆运营类型</span><b>全部 ▾</b></label>
+                    <label><span>车牌号</span><b>浙B·****7</b></label>
+                    <label><span>是否新用户</span><b>全部 ▾</b></label>
+                    <label><span>处理状态</span><b>待处理 ▾</b></label>
+                    <label><span>是否有效</span><b>全部 ▾</b></label>
+                  </div>
+                  <div class="admin-actions"><button type="button" tabindex="-1">重置</button><button type="button" tabindex="-1">查询</button></div>
+                </div>
+                <div class="admin-list-head"><strong>评价列表</strong><span>共 1,998 条</span></div>
+                <div class="admin-table-real" role="table" aria-label="脱敏评价数据">
+                  <div class="admin-table-row head" role="row"><span>下单时间</span><span>换电记录单号</span><span>省份</span><span>城市</span><span>车型</span><span>评分</span><span>处理状态</span><span>是否有效</span><span>判责结果</span><span>操作</span></div>
+                  <div class="admin-table-row" role="row"><span>05-14 15:43</span><span class="data-link">HD***0918</span><span>浙江</span><span>宁波</span><span>巧克力</span><span class="stars">★★☆☆☆</span><span>待处理</span><span>—</span><span>—</span><span class="data-link">查看</span></div>
+                  <div class="admin-table-row" role="row"><span>05-14 13:06</span><span class="data-link">HD***0862</span><span>浙江</span><span>杭州</span><span>巧克力</span><span class="stars">★★★☆☆</span><span>已处理</span><span>有效</span><span>服务运营</span><span class="data-link">查看</span></div>
+                  <div class="admin-table-row" role="row"><span>05-13 18:22</span><span class="data-link">HD***0741</span><span>上海</span><span>上海</span><span>巧克力</span><span class="stars">★☆☆☆☆</span><span>待处理</span><span>—</span><span>—</span><span class="data-link">查看</span></div>
+                  <div class="admin-table-row" role="row"><span>05-13 16:48</span><span class="data-link">HD***0695</span><span>江苏</span><span>苏州</span><span>巧克力</span><span class="stars">★★☆☆☆</span><span>已处理</span><span>无效</span><span>用户责任</span><span class="data-link">查看</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="ui-story reverse">
+          <div class="ui-copy">
+            <span>02 / 评价详情</span><h3>在一个页面完成回访与判责</h3>
+            <p>基础信息只读，回访和判责按权限编辑；查看模式与编辑模式使用不同按钮，避免误操作。</p>
+            <ul class="spec-list">
+              <li>低分原因、用户跟进情况：必填，单项最多 1,000 字</li>
+              <li>回访凭证：选填，最多 9 个文件</li>
+              <li>支持图片、PDF、视频、音频和 DOCX</li>
+              <li>有效性与判责结果：必填；选择“其他”时补充原因</li>
+            </ul>
+          </div>
+          <div class="mock-window detail-mock" aria-label="脱敏重构的评价详情界面示意">
+            <div class="mock-toolbar"><i></i><i></i><i></i><span>评价详情 · 编辑状态</span></div>
+            <div class="detail-head"><strong>基础信息（只读）</strong><div><span>订单来源</span><b>换电服务</b><span>评价星级</span><b class="stars">★★☆☆☆</b></div></div>
+            <div class="form-block"><label>低分原因 *</label><div>用户反馈现场等待时间较长…</div><label>跟进情况 *</label><div class="textarea">已完成电话回访，补充处理说明与凭证。</div></div>
+            <div class="form-row"><div><label>是否有效 *</label><b>有效⌄</b></div><div><label>判责结果 *</label><b>服务运营⌄</b></div></div>
+            <button type="button" tabindex="-1">确认并提交</button>
+          </div>
+        </article>
+
+        <article class="ui-story">
+          <div class="ui-copy">
+            <span>03 / 通知与操作日志</span><h3>让交接可达，让修改可查</h3>
+            <p>通知卡片提供评价详情入口；日志记录操作人、操作时间和修改内容，文件上传与删除也单独留痕。</p>
+            <ul class="spec-list">
+              <li>文本字段记录原值与新值</li>
+              <li>首次填写时，原值统一记为“—”</li>
+              <li>文件记录名称、格式、上传或删除动作</li>
+            </ul>
+          </div>
+          <div class="notification-stage" aria-label="脱敏重构的通知卡片与操作日志示意">
+            <div class="ding-card"><span class="bot">BOT</span><p>低分评价判责已完成</p><strong>责任类型：服务运营</strong><small>请责任团队查看详情并继续处理</small><a tabindex="-1">查看评价详情 →</a></div>
+            <div class="log-card"><header>操作日志</header><p><span>10:24</span><b>体验团队</b> 更新判责结果</p><p><span>09:51</span><b>区域运营</b> 上传回访凭证 2 份</p></div>
+          </div>
+        </article>
+      </div>
+      <p class="privacy-note">以上界面依据项目真实后台结构脱敏复刻；订单号、手机号与车牌号均使用掩码数据，不展示真实用户信息。</p>
+    </section>
+
+    <section class="case-section validation-section" id="efficiency" aria-labelledby="efficiency-title">
+      <div class="section-label"><span>06</span><p>EFFICIENCY</p></div>
+      <div class="section-intro">
+        <p class="overline">效率改善来自哪里</p>
+        <h2 id="efficiency-title">减少的不是一个步骤，而是四类重复沟通。</h2>
+      </div>
+      <div class="efficiency-list">
+        <article><span>筛选</span><strong>人工逐条识别</strong><i>→</i><strong>系统按规则自动判断</strong><p>减少无效评价进入回访造成的重复处理。</p></article>
+        <article><span>交接</span><strong>群内人工找人、催办</strong><i>→</i><strong>关键节点定向推送</strong><p>让下一责任人及时知道“轮到我处理”。</p></article>
+        <article><span>取证</span><strong>文字与文件分散</strong><i>→</i><strong>证据与评价记录绑定</strong><p>判责时无需再次向回访人员索取材料。</p></article>
+        <article><span>追踪</span><strong>反复询问当前进度</strong><i>→</i><strong>状态与日志在线可查</strong><p>降低跨部门确认成本，为复盘提供依据。</p></article>
+      </div>
+      <div class="evidence-table">
+        <div class="evidence-row header"><span>指标类型</span><span>指标内容</span><span>当前证据</span></div>
+        <div class="evidence-row"><span>现状基线</span><strong>1,998 条低分评价 / 0.2% 低分率</strong><em class="verified">真实数据</em></div>
+        <div class="evidence-row"><span>效率目标</span><strong>问题处理 48 小时内完成，闭环时效提升 30%</strong><em class="target">方案目标</em></div>
+        <div class="evidence-row"><span>结果目标</span><strong>闭环解决率 100%，整体满意度提升 0.03</strong><em class="target">待上线验证</em></div>
+      </div>
+      <p class="truth-note">由于项目未跟进到正式上线，我不能把目标值写成实际结果。这个案例能证明的是：我完成了问题定义、业务规则、流程、权限和页面方案，并将项目推进至评审 / 开发排期阶段。</p>
+    </section>
+
+    <section class="case-section" id="boundary" aria-labelledby="boundary-title">
+      <div class="section-label"><span>07</span><p>BOUNDARIES</p></div>
+      <div class="section-intro">
+        <p class="overline">如果继续推进</p>
+        <h2 id="boundary-title">还需要补齐四个上线条件。</h2>
+      </div>
+      <div class="reflection-grid">
+        <p><span>01</span>统一 7 天有效期是“&lt; 7 天”还是“≤ 7 天”的边界口径。</p>
+        <p><span>02</span>明确“闭环完成”的定义，并补充责任部门处理、验收与二次回访。</p>
+        <p><span>03</span>定义超时升级、通知失败重试与重复通知的幂等规则。</p>
+        <p><span>04</span>补充附件大小、隐私、保存周期及历史数据迁移规则。</p>
+      </div>
+    </section>
+      </div>
+    </div>
+
+    <footer class="case-footer">
+      <p>03 / 低分评价管理系统</p>
+      <a href="/#projects">返回全部项目 <span aria-hidden="true">↗</span></a>
+    </footer>
+  </main>
+
+  <script>
+    const progressBar = document.querySelector<HTMLElement>('[data-reading-progress]');
+    const updateProgress = () => {
+      if (!progressBar) return;
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = max > 0 ? Math.min(1, window.scrollY / max) : 0;
+      progressBar.style.transform = `scaleX(${progress})`;
+    };
+    updateProgress();
+    window.addEventListener('scroll', updateProgress, { passive: true });
+  </script>
+</BaseLayout>

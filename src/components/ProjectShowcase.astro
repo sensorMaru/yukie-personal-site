@@ -1,0 +1,156 @@
+---
+import VoiceProjectCover from './VoiceProjectCover.astro';
+const projects = [
+  {
+    title: '台式口播本地化助手', category: '源于 AnyMind 实习 · 个人产品探索',
+    focus: '让每一批口播，都有清晰的读音与处理进度。',
+    description: '围绕台式读音适配与跨平台批量配音，设计原稿／配音稿对照、替换字确认及复制进度标记，帮助制作同事处理一次 50–60 条的口播任务。',
+    status: '方案设计 · 交互示意已制作，团队效果待验证', tags: ['本地化读音', '批量处理', '进度留痕'],
+    image: '', alt: '口播本地化助手界面概念',
+    caption: '配音稿处理 / 界面概念',
+    detailHref: '/projects/taiwan-voice-assistant/',
+  },
+  {
+    title: '场景化模型评测', category: '个人探索 · 模型选型',
+    focus: '同一个创作任务，如何选择合适的模型？',
+    description: '拟围绕电商商品特写场景，对比不同视频模型的商品还原、生成稳定性与使用成本，为具体任务选择合适的模型。',
+    status: '筹备中', tags: ['商品还原', '生成稳定性', '成本对比'],
+    image: '/projects/model-evaluation-v1.webp', alt: '商品特写场景概念占位图，非评测结果',
+    caption: '商品特写 / 概念占位图',
+  },
+  {
+    title: '低分评价管理系统', category: '宁德时代 · 业务流程设计',
+    focus: '让低分评价有明确的跟进路径。',
+    description: '针对低分评价依赖线下台账、跨部门跟进不清晰的问题，设计评价有效性判断、回访、判责、通知与角色权限方案。',
+    status: '已完成方案与 PRD · 未跟进至上线', tags: ['评价回访', '跨部门协作', '角色权限'],
+    image: '/projects/service-system-v1.webp', alt: '通用换电服务场景概念占位图，非宁德实际设施',
+    caption: '换电服务 / 概念占位图',
+    detailHref: '/projects/low-score-review/#flow',
+  },
+];
+---
+
+<section class="project-showcase" id="projects" aria-labelledby="projects-title">
+  <div class="project-heading">
+    <p class="project-eyebrow">02 / SELECTED PROJECTS</p>
+    <h2 id="projects-title">项目与探索 <span aria-hidden="true">✳</span></h2>
+  </div>
+  <div class="project-tabs" role="tablist" aria-label="选择项目">
+    {projects.map((project, index) => (
+      <button class="project-tab" type="button" role="tab" id={`project-tab-${index}`} aria-controls={`project-panel-${index}`} aria-selected={index === 0 ? 'true' : 'false'} tabindex={index === 0 ? 0 : -1} data-project-tab={index}>
+        <span class="tab-number">{String(index + 1).padStart(2, '0')}</span>
+        <span>{project.title}</span><span class="tab-rule" aria-hidden="true"></span>
+      </button>
+    ))}
+  </div>
+  <div class="project-stage">
+    {projects.map((project, index) => (
+      <div class="project-panel" id={`project-panel-${index}`} role="tabpanel" aria-labelledby={`project-tab-${index}`} tabindex="0" hidden={index !== 0} data-project-panel={index}>
+        <div class="project-copy">
+          <p class="project-category">{project.category}</p>
+          <h3>{project.focus}</h3>
+          <p class="project-description">{project.description}</p>
+          <ul class="project-tags" aria-label="项目关键词">{project.tags.map(tag => <li>{tag}</li>)}</ul>
+          <p class="project-status"><span aria-hidden="true"></span>{project.status}</p>
+          {project.detailHref && (
+            <a class="project-detail-link" href={project.detailHref} aria-label={`查看${project.title}完整案例`}>
+              查看完整案例 <span aria-hidden="true">↗</span>
+            </a>
+          )}
+        </div>
+        <figure class="project-media">
+          {index === 0 ? (
+            <a class="project-image project-image-link voice-cover-link" href={project.detailHref} aria-label="进入台式口播本地化助手详情页">
+              <VoiceProjectCover compact />
+              <span class="image-link-hint">查看方案 <span aria-hidden="true">↗</span></span>
+            </a>
+          ) : project.detailHref ? (
+            <a class="project-image project-image-link" href={project.detailHref} aria-label={`进入${project.title}详情页`}>
+              <img src={project.image} width="1672" height={index === 1 ? 940 : 941} alt={project.alt} loading="lazy" decoding="async" />
+              <span class="image-link-hint">进入案例 <span aria-hidden="true">↗</span></span>
+            </a>
+          ) : (
+            <div class="project-image"><img src={project.image} width="1672" height={index === 1 ? 940 : 941} alt={project.alt} loading="lazy" decoding="async" /></div>
+          )}
+          <figcaption><span>{project.caption}</span><span>{index === 0 ? '设计示意 · 非上线产品截图' : 'AI 生成 · 非实际项目成果'}</span></figcaption>
+        </figure>
+      </div>
+    ))}
+  </div>
+</section>
+
+<script>
+  const showcase = document.querySelector<HTMLElement>('.project-showcase');
+  if (showcase) {
+    const tabs = Array.from(showcase.querySelectorAll<HTMLButtonElement>('[data-project-tab]'));
+    const panels = Array.from(showcase.querySelectorAll<HTMLElement>('[data-project-panel]'));
+    const select = (index: number) => {
+      tabs.forEach((tab, position) => {
+        tab.setAttribute('aria-selected', String(position === index));
+        tab.tabIndex = position === index ? 0 : -1;
+        panels[position].hidden = position !== index;
+      });
+    };
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => select(index));
+      tab.addEventListener('keydown', event => {
+        let next = index;
+        if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
+        else if (event.key === 'ArrowLeft') next = (index - 1 + tabs.length) % tabs.length;
+        else if (event.key === 'Home') next = 0;
+        else if (event.key === 'End') next = tabs.length - 1;
+        else return;
+        event.preventDefault();
+        select(next);
+        tabs[next].focus();
+      });
+    });
+  }
+</script>
+
+<style>
+  .project-showcase{padding:40px 0 24px;scroll-margin-top:32px;color:#fff5ed}
+  .project-heading{padding:0 20px;margin-bottom:44px}
+  .project-eyebrow{margin:0 0 24px;color:#f17b6e;font-size:.875rem;letter-spacing:.18em}
+  h2{margin:0;font-size:clamp(2rem,3.8vw,3.75rem);font-weight:500;letter-spacing:-.04em;line-height:1.25}
+  h2 span{color:#f17b6e;font-size:.75em;margin-left:12px}
+  .project-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px;margin:0 0 28px;padding:0 4px}
+  .project-tab{display:flex;align-items:center;gap:14px;min-width:0;text-align:left;border:0;padding:16px 0;background:none;color:#bfa7a3;font:inherit;font-size:clamp(1rem,1.6vw,1.375rem);line-height:1.5;transition:color .25s}
+  .tab-number{font-size:.75rem;color:#c99c92;font-variant-numeric:tabular-nums}
+  .tab-rule{height:1px;flex:1;min-width:12px;background:#fff0e526;position:relative}
+  .tab-rule::after{content:'';position:absolute;inset:0;background:#f0a695;transform:scaleX(0);transform-origin:left;transition:transform .35s}
+  .project-tab[aria-selected=true]{color:#fff5ed}
+  .project-tab[aria-selected=true] .tab-rule::after{transform:scaleX(1)}
+  .project-tab:hover{color:#fff5ed}
+  .project-stage{border:1px solid #ebc5bb30;border-radius:24px;background:#211215;padding:clamp(24px,3.5vw,52px)}
+  .project-panel{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.7fr);align-items:center;gap:clamp(28px,4vw,64px);animation:project-reveal .4s ease both}
+  .project-panel[hidden]{display:none}
+  .project-panel:focus-visible{outline:2px solid #e8b1a3;outline-offset:12px;border-radius:8px}
+  .project-copy{min-width:0}
+  .project-category{color:#e9b3a5;font-size:.875rem;line-height:1.7;margin:0 0 24px}
+  h3{font-size:clamp(1.5rem,2.2vw,2.125rem);font-weight:500;line-height:1.5;letter-spacing:-.03em;margin:0 0 22px;text-wrap:pretty}
+  .project-description{font-size:1rem;line-height:1.85;color:#dfc9c2;margin:0 0 24px}
+  .project-tags{display:flex;flex-wrap:wrap;gap:8px 14px;list-style:none;margin:0;padding:0;color:#c5a8a1;font-size:.875rem;line-height:1.8}
+  .project-status{display:flex;align-items:baseline;gap:8px;margin:32px 0 0;font-size:.875rem;line-height:1.7;color:#f1c5b8}
+  .project-status>span{flex:0 0 5px;width:5px;height:5px;border-radius:50%;background:currentColor}
+  .project-detail-link{display:inline-flex;align-items:center;gap:10px;margin-top:24px;padding-bottom:5px;border-bottom:1px solid #f0a695;color:#fff5ed;font-size:.9rem;line-height:1.5;transition:color .2s,border-color .2s}
+  .project-detail-link span{color:#f0a695;transition:transform .2s}
+  .project-detail-link:hover,.project-detail-link:focus-visible{color:#f0a695}
+  .project-detail-link:hover span,.project-detail-link:focus-visible span{transform:translate(2px,-2px)}
+  .project-media{margin:0;min-width:0}
+  .project-image{aspect-ratio:16/10;border-radius:14px;overflow:hidden;background:#150d10}
+  .project-image img{display:block;width:100%;height:100%;object-fit:cover}
+  .voice-cover-link{container-type:inline-size}
+  .project-image-link{display:block;position:relative}
+  .project-image-link::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(13,5,7,.58));opacity:0;transition:opacity .25s}
+  .project-image-link img{transition:transform .45s ease,filter .3s ease}
+  .project-image-link:hover img,.project-image-link:focus-visible img{transform:scale(1.018);filter:brightness(.9)}
+  .project-image-link:hover::after,.project-image-link:focus-visible::after{opacity:1}
+  .image-link-hint{position:absolute;right:18px;bottom:16px;z-index:1;padding:8px 12px;border:1px solid #fff5ed4d;border-radius:999px;background:#170a0ccc;color:#fff5ed;font-size:.75rem;letter-spacing:.04em;opacity:0;transform:translateY(5px);transition:opacity .25s,transform .25s}
+  .project-image-link:hover .image-link-hint,.project-image-link:focus-visible .image-link-hint{opacity:1;transform:none}
+  figcaption{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px 16px;margin-top:16px;color:#c7aaa2;font-size:.75rem;line-height:1.6}
+  @keyframes project-reveal{from{opacity:.35;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @media(max-width:1000px){.project-panel{grid-template-columns:minmax(0,.9fr) minmax(0,1.3fr);gap:28px}.project-tabs{gap:20px}.tab-number{display:none}}
+  @media(max-width:700px){.project-showcase{padding-top:24px}.project-heading{padding:0 4px;margin-bottom:24px}.project-tabs{display:flex;overflow-x:auto;gap:24px;margin-bottom:20px}.project-tab{flex:0 0 auto;white-space:nowrap;font-size:1rem;position:relative;padding-bottom:14px}.tab-rule{display:none}.project-tab::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:#f0a695;transform:scaleX(0);transform-origin:left;transition:transform .25s}.project-tab[aria-selected=true]::after{transform:scaleX(1)}.project-stage{padding:24px 20px;border-radius:18px}.project-panel{grid-template-columns:1fr;gap:28px}.project-category{margin-bottom:16px}h3{margin-bottom:16px}.project-status{margin-top:22px}.project-image{aspect-ratio:16/10;border-radius:10px}figcaption{font-size:.75rem}}
+  @media(prefers-reduced-motion:reduce){.project-panel{animation:none}.project-tab,.tab-rule::after,.project-tab::after,.project-detail-link span,.project-image-link::after,.project-image-link img,.image-link-hint{transition:none}}
+</style>

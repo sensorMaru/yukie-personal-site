@@ -1,0 +1,118 @@
+/* Shared editorial rhythm for the existing portfolio, without changing its content. */
+:root {
+  --portfolio-ink: #fff4e9;
+  --portfolio-muted: #c9b0a9;
+  --portfolio-accent: #e7a08e;
+  --portfolio-line: #e8c3b826;
+  --portfolio-ease: cubic-bezier(.22, 1, .36, 1);
+  --portfolio-title: clamp(2rem, 3.6vw, 3.5rem);
+}
+html body { color: var(--portfolio-ink); -webkit-font-smoothing: antialiased; }
+::selection { color: #fff5eb; background: #8d343c; }
+body button:focus-visible, body a:focus-visible { outline: 2px solid #efb49e; outline-offset: 6px; }
+#top header { padding-top: 34px; padding-bottom: 26px; }
+#top .brand { font-size: 31px; letter-spacing: -1.6px; }
+#top .brand span { font-size: 26px; color: #f1c1ad; }
+#top header nav { gap: 36px; font-size: 15px; color: #ecdbd4; }
+#top header nav a { position: relative; padding: 8px 0; }
+#top header nav a::after { content: ''; position: absolute; height: 1px; inset: auto 0 0; background: #eab5a4; transform: scaleX(0); transform-origin: left; transition: transform .3s var(--portfolio-ease); }
+#top .contact { border-color: #ead6cd66; font-size: 15px; padding-bottom: 10px; }
+#top .intro { top: 49%; }
+#top .eyebrow { font-size: 15px; letter-spacing: .06em; margin-bottom: 28px; color: #e7ccc1; }
+#top #home-title { font-weight: 500; letter-spacing: -.045em; margin-bottom: 30px; }
+#top #home-title span { color: #d9b4a9; }
+#top .description { max-width: 425px; font-size: 17px; line-height: 2; color: #ecd8cf; margin-bottom: 36px; }
+#top .actions { gap: 16px; }
+#top .button { min-height: 48px; padding: 13px 24px; font-size: 14px; gap: 28px; border-color: #f4e4d8; background: #f4e4d8; transition: background .3s, border-color .3s, transform .4s var(--portfolio-ease); }
+#top .button.secondary { background: transparent; border-color: #edd4c65c; color: #f3e4da; }
+#top .button span { display: inline-block; transition: transform .35s var(--portfolio-ease); }
+#details { padding-inline: max(4.5vw, calc((100vw - 1600px) / 2)); padding-bottom: 64px; }
+#experience { --exp-accent: var(--portfolio-accent); --exp-muted: var(--portfolio-muted); padding-top: 64px; padding-bottom: 100px; }
+#experience .experience-heading, #projects .project-heading { padding-inline: 20px; margin-bottom: 48px; }
+#experience .experience-kicker, #projects .project-eyebrow { margin-bottom: 22px; font-size: .8125rem; line-height: 1.6; letter-spacing: .2em; color: var(--portfolio-accent); }
+#experience .experience-heading h2, #projects .project-heading h2 { font-size: var(--portfolio-title); font-weight: 450; letter-spacing: -.04em; line-height: 1.25; }
+#experience .experience-heading h2 span, #projects .project-heading h2 span { font-size: .58em; color: var(--portfolio-accent); }
+#experience .experience-timeline { gap: 14px; }
+#experience .experience-row { padding-block: 32px; border-radius: 16px; }
+#experience .experience-row + .experience-row { border-top-color: var(--portfolio-line); }
+#experience .experience-row::before { background: linear-gradient(105deg, #fff0df04, #b7777110 72%, #e4a0840a); }
+#experience .experience-date { font-size: .8125rem; letter-spacing: .06em; color: #c7aaa4; }
+#experience .experience-summary h3 { font-size: clamp(1.5rem, 2vw, 2rem); line-height: 1.4; }
+#experience .experience-role { color: #e8b09f; }
+#experience .experience-tags { gap: 8px; }
+#experience .experience-tags li { border-color: #edc1b61f; background: transparent; font-size: .8125rem; padding: 4px 9px; }
+#experience .experience-card { padding: 24px; border-color: transparent; border-radius: 12px; background: transparent; }
+#experience .experience-card h4 { font-size: .75rem; color: #dfa897; letter-spacing: .14em; margin-bottom: 18px; }
+#experience .experience-card p { font-size: 1rem; line-height: 1.95; }
+#experience .experience-output { border-color: #dfab991c; background: #f4c6ae05; }
+#experience .experience-output .experience-status { font-size: .8125rem; line-height: 1.7; color: #c8a79f; border-top: 1px solid #dfab9917; margin-top: 22px; padding-top: 18px; }
+#experience .timeline-track span { box-shadow: none; background: linear-gradient(#a55051, #e7a08e); }
+#projects { padding: 72px 0 88px; border-top: 1px solid var(--portfolio-line); }
+#projects .project-tabs { gap: 36px; padding-inline: 20px; margin-bottom: 30px; }
+#projects .project-tab { font-size: clamp(1rem, 1.5vw, 1.3125rem); color: #bda29b; padding-block: 18px; }
+#projects .project-tab[aria-selected=true] { color: #fff1e5; }
+#projects .tab-rule { background: #e6beaf20; }
+#projects .tab-rule::after { background: #dca18c; }
+#projects .project-stage { background: #201316; border-color: #e1bbad26; padding: clamp(26px, 3vw, 48px); border-radius: 18px; box-shadow: 0 24px 60px -40px #080305b3; }
+#projects .project-panel { grid-template-columns: minmax(0, .78fr) minmax(0, 1.75fr); gap: clamp(30px, 4vw, 64px); }
+#projects .project-panel[hidden] { display: none; }
+#projects .project-category { font-size: .8125rem; letter-spacing: .04em; color: #e2ae9e; }
+#projects h3 { font-size: clamp(1.5rem, 2vw, 2rem); line-height: 1.55; letter-spacing: -.035em; }
+#projects .project-description { font-size: 1rem; line-height: 1.95; color: #d4bbb2; }
+#projects .project-status { border-top: 1px solid #e3b9a923; padding-top: 20px; color: #d8b1a2; }
+#projects .project-image { aspect-ratio: 16/10; border-radius: 10px; }
+#projects .project-image img { transition: transform 1s var(--portfolio-ease); }
+#projects figcaption { margin-top: 14px; color: #bda39a; }
+/* Unfinished sections remain navigable, without oversized empty cards. */
+#details .details-grid { display: block; padding-top: 20px; }
+#details .details-panel { display: grid; grid-template-columns: 50px minmax(0, 1fr) auto; align-items: center; gap: 24px; min-height: 0; padding: 30px 20px; border: 0; border-top: 1px solid var(--portfolio-line); border-radius: 0; }
+#details .details-panel:last-child { border-bottom: 1px solid var(--portfolio-line); }
+#details .details-index { font-size: .8125rem; letter-spacing: .08em; margin: 0; color: #bb9185; }
+#details .details-panel h2 { font-size: clamp(1.25rem, 2vw, 1.625rem); margin: 0; font-weight: 400; }
+#details .section-pending { font-size: .8125rem; color: #b59b93; letter-spacing: .06em; }
+@media (hover: hover) and (pointer: fine) {
+  #top header nav a:hover::after { transform: scaleX(1); }
+  #top .button:hover { transform: translateY(-2px); background: #fff3e8; }
+  #top .button.secondary:hover { background: #fff1e50c; color: #fff3e8; border-color: #efd4c59c; }
+  #top .button:hover span { transform: translate(2px, -2px); }
+  #experience .experience-row:hover { border-color: #e3b09f30; box-shadow: 0 16px 32px -28px #0007; }
+  #experience .experience-row .experience-card:hover { transform: translateY(-2px); border-color: #e3b09f40; box-shadow: none; }
+  #projects .project-media:hover img { transform: scale(1.025); }
+}
+@media (min-width: 901px) {
+  #top .intro { animation: portfolio-intro .85s var(--portfolio-ease) both; }
+}
+@keyframes portfolio-intro { from { opacity: 0; translate: 0 12px; } to { opacity: 1; translate: 0 0; } }
+@media (max-width: 1150px) {
+  #experience .experience-card { padding: 22px; }
+  #projects .project-panel { grid-template-columns: minmax(0, .9fr) minmax(0, 1.3fr); gap: 28px; }
+}
+@media (max-width: 900px) {
+  #top header { padding: 22px; }
+  #top .brand { font-size: 27px; }
+  #top .contact { font-size: 14px; }
+  #top .intro { top: auto; }
+  #top .eyebrow { font-size: 14px; margin-bottom: 16px; }
+  #top #home-title { margin-bottom: 22px; }
+  #top .description { font-size: 16px; line-height: 1.9; margin-bottom: 28px; }
+  #top .button { padding: 11px 18px; gap: 22px; }
+  #details { padding-inline: 24px; }
+}
+@media (max-width: 700px) {
+  #experience { padding-top: 40px; padding-bottom: 60px; }
+  #experience .experience-heading, #projects .project-heading { padding-inline: 4px; margin-bottom: 30px; }
+  #experience .experience-row { padding-block: 24px; }
+  #experience .experience-card { padding: 20px 16px; }
+  #experience .experience-scope { padding-inline: 0; }
+  #projects { padding-block: 48px 56px; }
+  #projects .project-tabs { gap: 24px; padding-inline: 4px; margin-bottom: 24px; }
+  #projects .project-stage { padding: 24px 20px; border-radius: 14px; }
+  #projects .project-panel { grid-template-columns: 1fr; gap: 28px; }
+  #details .details-panel { grid-template-columns: 28px minmax(0, 1fr) auto; gap: 14px; padding: 26px 4px; }
+  #details .section-pending { font-size: .75rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #top .intro { animation: none; }
+  #top .button, #top .button span, #top header nav a::after, #projects .project-image img { transition: none; }
+  #top .button:hover, #top .button:hover span, #projects .project-media:hover img { transform: none; }
+}

@@ -1,0 +1,70 @@
+---
+const samples = [
+  '今天想跟大家分享我們的拍攝日常。',
+  '這段影片，記錄了一個很有意思的小發現。',
+  '一起看看今天的拍攝花絮吧。',
+];
+---
+<div class="progress-demo" data-voice-demo>
+  <div class="demo-bar"><div><strong>口播批次 / 交互示意</strong><p>3 条虚构示例 · 不执行读音转换，不连接配音模型</p></div><button type="button" data-reset>重置示例状态</button></div>
+  <div class="demo-summary"><span data-counts>共 3 条 · 已复制 0 条 · 已完成 0 条</span><label><input type="checkbox" data-filter /> 只看未完成</label></div>
+  <div class="demo-list">
+    {samples.map((sample, i) => <article class="demo-card" data-card={i}>
+      <div class="demo-card-head"><span>VOICE / {String(i + 1).padStart(2, '0')}</span><span data-status>待复制</span></div>
+      <p data-copy-text lang="zh-TW">{sample}</p>
+      <div class="demo-card-actions"><span>示例文案 · 无发音替换</span><div><button type="button" data-copy aria-label={`复制第 ${i + 1} 条示例口播`}>复制口播 ↗</button><button type="button" data-done aria-label={`标记第 ${i + 1} 条已完成`} aria-pressed="false">标记完成</button></div></div>
+    </article>)}
+  </div>
+  <p class="demo-empty" data-empty hidden>本批示例已全部完成。取消筛选可重新查看。</p>
+  <p class="demo-notice" data-notice role="status" aria-live="polite">点击“复制口播”试试：复制成功后卡片变色。状态仅记录在此浏览器。</p>
+</div>
+<script>
+  const demo = document.querySelector<HTMLElement>('[data-voice-demo]');
+  if (demo) {
+    const key = 'yukie-voice-case-demo-v1';
+    const cards = Array.from(demo.querySelectorAll<HTMLElement>('[data-card]'));
+    const filter = demo.querySelector<HTMLInputElement>('[data-filter]')!;
+    const notice = demo.querySelector<HTMLElement>('[data-notice]')!;
+    let states: {copied:boolean;done:boolean}[] = cards.map(() => ({copied:false,done:false}));
+    try {
+      const saved = JSON.parse(localStorage.getItem(key) || 'null');
+      if (Array.isArray(saved) && saved.length === cards.length && saved.every(s => s && typeof s.copied === 'boolean' && typeof s.done === 'boolean')) states = saved;
+    } catch { /* The demo remains usable without browser storage. */ }
+    const render = () => {
+      cards.forEach((card, i) => {
+        const s = states[i];
+        card.dataset.state = s.done ? 'done' : s.copied ? 'copied' : 'pending';
+        card.hidden = filter.checked && s.done;
+        card.querySelector('[data-status]')!.textContent = s.done ? '✓ 已完成' : s.copied ? '✓ 已复制 · 尚未确认完成' : '待复制';
+        const done = card.querySelector<HTMLButtonElement>('[data-done]')!;
+        done.textContent = s.done ? '撤销完成' : '标记完成';
+        done.setAttribute('aria-label', s.done ? `撤销第 ${i + 1} 条完成标记` : `标记第 ${i + 1} 条已完成`);
+        done.setAttribute('aria-pressed', String(s.done));
+        card.querySelector('[data-copy]')!.textContent = s.copied ? '再次复制 ↗' : '复制口播 ↗';
+      });
+      demo.querySelector('[data-counts]')!.textContent = `共 ${cards.length} 条 · 已复制 ${states.filter(s => s.copied).length} 条 · 已完成 ${states.filter(s => s.done).length} 条`;
+      demo.querySelector<HTMLElement>('[data-empty]')!.hidden = !(filter.checked && states.every(s => s.done));
+    };
+    const save = () => { try { localStorage.setItem(key, JSON.stringify(states)); } catch { notice.textContent = '当前浏览器无法保存状态；刷新后可能丢失。'; } };
+    cards.forEach((card, i) => {
+      const button = card.querySelector<HTMLButtonElement>('[data-copy]')!;
+      button.addEventListener('click', async () => {
+        button.disabled = true;
+        try {
+          await navigator.clipboard.writeText(card.querySelector('[data-copy-text]')!.textContent!.trim());
+          states[i].copied = true;
+          notice.textContent = `第 ${i + 1} 条已复制。完成外部配音后，可以回来手动标记完成。`;
+          save(); render();
+        } catch { notice.textContent = '复制未成功，状态未改变。请选中文稿手动复制，或允许浏览器访问剪贴板。'; }
+        finally { button.disabled = false; }
+      });
+      card.querySelector('[data-done]')!.addEventListener('click', () => { states[i].done = !states[i].done; notice.textContent = `第 ${i + 1} 条${states[i].done ? '已手动标记完成' : '已撤销完成标记'}。`; save();render(); });
+    });
+    filter.addEventListener('change', render);
+    demo.querySelector('[data-reset]')!.addEventListener('click', () => { states = cards.map(() => ({copied:false,done:false})); filter.checked = false;notice.textContent = '示例状态已重置。';save();render(); });
+    render();
+  }
+</script>
+<style>
+  .progress-demo{border:1px solid #dcc3b72b;background:#201518;border-radius:20px;overflow:hidden;color:#f8eee6}.demo-bar,.demo-summary{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:22px 28px;border-bottom:1px solid #dcc3b722}.demo-bar strong{font-weight:500}.demo-bar p{margin:6px 0 0;color:#b59c94;font-size:12px}.demo-bar button{font-size:12px;color:#d8b6a9;text-decoration:underline;text-underline-offset:4px}.demo-summary{font-size:12px;color:#c4ada4;padding:16px 28px}.demo-summary label{display:flex;gap:7px;align-items:center}.demo-summary input{accent-color:#d5a58e}.demo-list{padding:24px;display:grid;gap:14px}.demo-card{padding:22px 24px;border:1px solid #d5a58e30;border-radius:10px;background:#281c1f;transition:background .25s,border-color .25s}.demo-card[hidden]{display:none}.demo-card[data-state=copied]{background:#50332e;border-color:#e0a48b77}.demo-card[data-state=done]{background:#26382e;border-color:#88a98a66}.demo-card-head{display:flex;justify-content:space-between;gap:12px;color:#d4b6aa;font-size:11px;letter-spacing:.05em}.demo-card[data-state=done] [data-status]{color:#b6d4b7}.demo-card p{font-size:18px;line-height:1.8;margin:20px 0}.demo-card-actions{display:flex;justify-content:space-between;gap:12px;align-items:center}.demo-card-actions>span{font-size:11px;color:#b49b90}.demo-card-actions>div{display:flex;gap:10px}.demo-card-actions button{font-size:12px;padding:8px 14px;border-radius:5px;border:1px solid #d5a58e55;color:#eed8ca}.demo-card-actions [data-copy]{background:#e9c0ac;color:#2e1917;border-color:#e9c0ac}.demo-card-actions button:disabled{opacity:.5;cursor:wait}.demo-notice,.demo-empty{font-size:12px;line-height:1.8;color:#c2a99d;margin:0;padding:0 28px 22px}button:focus-visible,input:focus-visible{outline:2px solid #ffd1b7;outline-offset:4px}@media(max-width:600px){.demo-bar,.demo-summary{padding:18px;align-items:flex-start;flex-direction:column}.demo-list{padding:14px}.demo-card{padding:18px}.demo-card-actions{align-items:flex-start;flex-direction:column}.demo-card-head{font-size:10px}.demo-card p{font-size:16px}.demo-notice{padding:0 18px 18px}}@media(prefers-reduced-motion:reduce){.demo-card{transition:none}}
+</style>

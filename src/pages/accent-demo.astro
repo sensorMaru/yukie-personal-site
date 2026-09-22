@@ -1,0 +1,547 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import {
+  accentReplacementRules,
+  automaticAccentReplacementRules,
+} from '../data/accent-replacements';
+---
+
+<BaseLayout
+  title="口音发音转换 Demo"
+  description="粘贴文字，仅对符合语境的少量发音进行转换；原句、词序与字幕保持不变。"
+>
+  <main class="accent-page">
+    <header class="topbar">
+      <a href="/" class="brand">YUKIE <span>✳</span></a>
+      <span class="prototype-label">MINI PROTOTYPE</span>
+    </header>
+
+    <section class="intro">
+      <p class="eyebrow">ACCENT LOCALIZER · TW</p>
+      <h1>粘贴文字，<br /><span>只转换需要变化的发音。</span></h1>
+      <p class="intro-copy">不改句意、不改词序。字幕保留原文，转换结果只作为配音输入稿。</p>
+    </section>
+
+    <section
+      class="converter"
+      data-converter
+      data-corpus-rules={JSON.stringify(automaticAccentReplacementRules)}
+      aria-label="口音发音转换工具"
+    >
+      <div class="converter-bar">
+        <div>
+          <span class="status-dot" aria-hidden="true"></span>
+          <strong>台湾国语 · 轻量规则</strong>
+        </div>
+        <span>语料库：{accentReplacementRules.length} 条 · 自动 {automaticAccentReplacementRules.length} 条</span>
+      </div>
+
+      <div class="workspace">
+        <section class="editor-panel" aria-labelledby="input-heading">
+          <div class="panel-heading">
+            <div><span>01</span><h2 id="input-heading">粘贴原文</h2></div>
+            <button type="button" data-clear>清空</button>
+          </div>
+          <textarea
+            data-input
+            rows="8"
+            maxlength="500"
+            aria-describedby="input-help"
+            placeholder="在这里粘贴需要处理的口播文字……"
+          >我和你一起准备今天的拍摄。</textarea>
+          <div class="editor-footer">
+            <span id="input-help">字幕将保留这里的原文</span>
+            <span data-character-count>14 / 500</span>
+          </div>
+          <div class="examples" aria-label="示例句">
+            <span>示例</span>
+            <button type="button" data-example="客廳我本來就放360系列。房間比較小，我就放這台。跟360系列比，它的占地大約少四成。擺在這裡也很搭，不會一眼只看到機器。開AI模式，它會自己偵測；空氣清新時就轉待機。不用重新挪家具，房間也放得下清淨機。">产品口播</button>
+            <button type="button" data-example="乾燥環境需要即時處理，細緻質地能降低負荷，也更舒服。">语料库</button>
+            <button type="button" data-example="我和你一起准备今天的拍摄。">我和你</button>
+            <button type="button" data-example="我和她晚一点再确认内容。">我和她</button>
+            <button type="button" data-example="我们都希望世界和平。">和平（不转换）</button>
+          </div>
+          <button class="convert-button" type="button" data-convert>
+            转换为配音发音稿
+            <span aria-hidden="true">→</span>
+          </button>
+        </section>
+
+        <section class="result-panel" aria-labelledby="output-heading">
+          <div class="panel-heading">
+            <div><span>02</span><h2 id="output-heading">转换结果</h2></div>
+            <span class="change-count" data-change-count>已调整 1 处</span>
+          </div>
+
+          <div class="result-card voice-card">
+            <div class="result-label"><span>配音输入稿</span><small>发音替代字高亮</small></div>
+            <p data-output aria-live="polite">我<mark>汗</mark>你一起准备今天的拍摄。</p>
+          </div>
+
+          <div class="rule-card" data-rule-card>
+            <div class="rule-change">
+              <span data-rule-from>和</span><i aria-hidden="true">→</i><span data-rule-to>汗</span>
+            </div>
+            <p data-rule-description>“和”连接人物时，将 hé 调整为台湾常用读音 hàn。</p>
+          </div>
+
+          <button class="copy-button" type="button" data-copy>
+            <span data-copy-label>复制配音输入稿</span>
+            <span aria-hidden="true">↗</span>
+          </button>
+          <p class="message" data-message role="status" aria-live="polite">转换只发生在配音稿，字幕内容没有变化。</p>
+        </section>
+      </div>
+
+      <section class="audio-check" aria-labelledby="audio-heading">
+        <div class="audio-check-heading">
+          <div><span>03</span><h2 id="audio-heading">上传音频，二次检查</h2></div>
+          <a href="/accent-audio-check/" target="_blank" rel="noreferrer">独立打开 ↗</a>
+        </div>
+
+        <div class="audio-check-grid">
+          <label class="upload-zone" data-upload-zone>
+            <input type="file" accept="audio/*,.wav,.mp3,.m4a" data-audio-input />
+            <span class="upload-symbol" aria-hidden="true">＋</span>
+            <strong>丢入生成后的配音音频</strong>
+            <span>支持 WAV、MP3、M4A，音频仅用于本次分析</span>
+          </label>
+
+          <div class="audio-review">
+            <div class="audio-file-row">
+              <div>
+                <span>待检音频</span>
+                <strong data-audio-name>尚未选择文件</strong>
+              </div>
+              <span data-audio-duration>—</span>
+            </div>
+            <audio controls preload="metadata" data-audio-player hidden></audio>
+            <label class="reference-toggle">
+              <input type="checkbox" data-use-script-reference />
+              <span>使用上方配音稿作为校验基准</span>
+            </label>
+            <button class="analyze-button" type="button" data-analyze-audio disabled>
+              <span data-analyze-label>开始二次检查</span>
+              <span aria-hidden="true">→</span>
+            </button>
+            <p class="audio-status" data-audio-status role="status" aria-live="polite">默认只分析新上传的音频，不读取上方或上一次的文字。</p>
+          </div>
+        </div>
+
+        <div class="audio-result" data-audio-result hidden>
+          <div class="audio-result-summary">
+            <span>检查结果</span>
+            <strong data-audio-summary></strong>
+          </div>
+          <div class="audio-verdict" data-audio-verdict>
+            <span class="audio-verdict-icon" data-audio-verdict-icon aria-hidden="true">✓</span>
+            <div>
+              <strong data-audio-verdict-title></strong>
+              <p data-audio-verdict-detail></p>
+            </div>
+          </div>
+          <ul class="audio-check-list" data-audio-check-list></ul>
+        </div>
+      </section>
+
+      <footer class="converter-footer">
+        <span>规则边界</span>
+        <p><strong>只自动处理明确规则。</strong>数字型号按位读、英文字母拆读；“和”只在连接人物时转换，“和平、和谐”不会误改，完整词“溫和”则按语料库规则处理。</p>
+      </footer>
+    </section>
+  </main>
+</BaseLayout>
+
+<script>
+  const converter = document.querySelector<HTMLElement>('[data-converter]');
+
+  if (converter) {
+    const input = converter.querySelector<HTMLTextAreaElement>('[data-input]')!;
+    const output = converter.querySelector<HTMLElement>('[data-output]')!;
+    const changeCount = converter.querySelector<HTMLElement>('[data-change-count]')!;
+    const ruleCard = converter.querySelector<HTMLElement>('[data-rule-card]')!;
+    const characterCount = converter.querySelector<HTMLElement>('[data-character-count]')!;
+    const message = converter.querySelector<HTMLElement>('[data-message]')!;
+    const copyLabel = converter.querySelector<HTMLElement>('[data-copy-label]')!;
+    const ruleFrom = converter.querySelector<HTMLElement>('[data-rule-from]')!;
+    const ruleTo = converter.querySelector<HTMLElement>('[data-rule-to]')!;
+    const ruleDescription = converter.querySelector<HTMLElement>('[data-rule-description]')!;
+    const uploadZone = converter.querySelector<HTMLElement>('[data-upload-zone]')!;
+    const audioInput = converter.querySelector<HTMLInputElement>('[data-audio-input]')!;
+    const audioName = converter.querySelector<HTMLElement>('[data-audio-name]')!;
+    const audioDuration = converter.querySelector<HTMLElement>('[data-audio-duration]')!;
+    const audioPlayer = converter.querySelector<HTMLAudioElement>('[data-audio-player]')!;
+    const useScriptReference = converter.querySelector<HTMLInputElement>('[data-use-script-reference]')!;
+    const analyzeButton = converter.querySelector<HTMLButtonElement>('[data-analyze-audio]')!;
+    const analyzeLabel = converter.querySelector<HTMLElement>('[data-analyze-label]')!;
+    const audioStatus = converter.querySelector<HTMLElement>('[data-audio-status]')!;
+    const audioResult = converter.querySelector<HTMLElement>('[data-audio-result]')!;
+    const audioSummary = converter.querySelector<HTMLElement>('[data-audio-summary]')!;
+    const audioVerdict = converter.querySelector<HTMLElement>('[data-audio-verdict]')!;
+    const audioVerdictIcon = converter.querySelector<HTMLElement>('[data-audio-verdict-icon]')!;
+    const audioVerdictTitle = converter.querySelector<HTMLElement>('[data-audio-verdict-title]')!;
+    const audioVerdictDetail = converter.querySelector<HTMLElement>('[data-audio-verdict-detail]')!;
+    const audioCheckList = converter.querySelector<HTMLUListElement>('[data-audio-check-list]')!;
+
+    const peopleWords = [
+      '我们', '你们', '他们', '她们', '大家', '同事', '朋友', '妈妈', '爸爸', '客户', '团队',
+      '我', '你', '他', '她', '它',
+    ];
+    type CorpusRule = { source: string; replacement: string; note?: string };
+    const corpusRules: CorpusRule[] = JSON.parse(converter.dataset.corpusRules || '[]');
+    let voiceText = '';
+    let appliedAudioRules: AppliedRule[] = [];
+    let selectedAudio: File | null = null;
+    let selectedAudioUrl = '';
+
+    const digitNames: Record<string, string> = {
+      '0': '零', '1': '一', '2': '二', '3': '三', '4': '四',
+      '5': '五', '6': '六', '7': '七', '8': '八', '9': '九',
+    };
+
+    const isPeopleConjunction = (text: string, index: number) => {
+      const left = text.slice(0, index);
+      const right = text.slice(index + 1);
+      return peopleWords.some(word => left.endsWith(word)) && peopleWords.some(word => right.startsWith(word));
+    };
+
+    type AppliedRule = {
+      id: string;
+      source: string;
+      replacement: string;
+      description: string;
+    };
+
+    const findRule = (text: string, index: number): (AppliedRule & { length: number }) | null => {
+      if (text.slice(index, index + 2).toUpperCase() === 'AI') {
+        return {
+          id: 'letters-ai',
+          length: 2,
+          source: text.slice(index, index + 2),
+          replacement: 'A I ',
+          description: 'AI 拆成两个字母读，避免语音模型连读成“爱”。',
+        };
+      }
+
+      const numberMatch = text.slice(index).match(/^\d+(?=\s*系列)/);
+      if (numberMatch) {
+        return {
+          id: 'model-number',
+          length: numberMatch[0].length,
+          source: numberMatch[0],
+          replacement: [...numberMatch[0]].map(digit => digitNames[digit] || digit).join(''),
+          description: '系列名称中的数字逐位读，避免被读成完整数值。',
+        };
+      }
+
+      if (text[index] === '和' && isPeopleConjunction(text, index)) {
+        return {
+          id: 'people-conjunction',
+          length: 1,
+          source: '和',
+          replacement: '汗',
+          description: '“和”连接人物时，将 hé 调整为台湾常用读音 hàn。',
+        };
+      }
+
+      const corpusRule = corpusRules.find(rule => {
+        const candidate = text.slice(index, index + rule.source.length);
+        return /[A-Za-z]/.test(rule.source)
+          ? candidate.toUpperCase() === rule.source.toUpperCase()
+          : candidate === rule.source;
+      });
+      if (corpusRule) {
+        return {
+          id: `corpus-${corpusRule.source}`,
+          length: corpusRule.source.length,
+          source: text.slice(index, index + corpusRule.source.length),
+          replacement: corpusRule.replacement,
+          description: corpusRule.note || `来自 UGC TTS 替换语料库：将“${corpusRule.source}”改写为发音输入“${corpusRule.replacement}”。`,
+        };
+      }
+
+      return null;
+    };
+
+    const render = () => {
+      const source = input.value.trim();
+      const fragments: Array<{ value: string; changed: boolean }> = [];
+      const appliedRules: AppliedRule[] = [];
+
+      for (let index = 0; index < source.length;) {
+        const rule = findRule(source, index);
+        if (rule) {
+          fragments.push({ value: rule.replacement, changed: true });
+          appliedRules.push(rule);
+          index += rule.length;
+        } else {
+          fragments.push({ value: source[index], changed: false });
+          index += 1;
+        }
+      }
+
+      voiceText = fragments.map(fragment => fragment.value).join('');
+      output.replaceChildren(...fragments.map(fragment => {
+        const element = document.createElement(fragment.changed ? 'mark' : 'span');
+        element.textContent = fragment.value;
+        return element;
+      }));
+      if (!source) output.textContent = '等待转换结果';
+
+      const changes = appliedRules.length;
+      appliedAudioRules = appliedRules;
+      const groupedRules = [...new Map(appliedRules.map(rule => [rule.id, rule])).values()];
+      changeCount.textContent = changes ? `已调整 ${changes} 处` : '无需调整';
+      changeCount.dataset.empty = String(changes === 0);
+      ruleCard.hidden = changes === 0;
+      if (groupedRules.length) {
+        ruleFrom.textContent = groupedRules.map(rule => rule.source).join('／');
+        ruleTo.textContent = groupedRules.map(rule => rule.replacement.trim()).join('／');
+        ruleDescription.textContent = groupedRules.map(rule => rule.description).join(' ');
+      }
+      message.textContent = !source
+        ? '请先粘贴需要处理的文字。'
+        : changes
+          ? '转换只发生在配音稿，字幕内容没有变化。'
+          : '当前文字没有命中演示规则，内容保持不变。';
+      characterCount.textContent = `${input.value.length} / 500`;
+      copyLabel.textContent = '复制配音输入稿';
+    };
+
+    input.addEventListener('input', () => {
+      characterCount.textContent = `${input.value.length} / 500`;
+      if (selectedAudio && useScriptReference.checked) audioStatus.textContent = '原文已修改；检查时会按当前文字重新生成发音稿。';
+    });
+    useScriptReference.addEventListener('change', () => {
+      audioResult.hidden = true;
+      audioStatus.textContent = useScriptReference.checked
+        ? '本次将使用上方当前配音稿校验；不会读取上一次的检查结果。'
+        : '已切换为独立听音；本次不读取上方或上一次的文字。';
+    });
+    input.addEventListener('keydown', event => {
+      if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') render();
+    });
+    converter.querySelector('[data-convert]')!.addEventListener('click', render);
+    converter.querySelector('[data-clear]')!.addEventListener('click', () => {
+      input.value = '';
+      render();
+      input.focus();
+    });
+    converter.querySelectorAll<HTMLButtonElement>('[data-example]').forEach(button => {
+      button.addEventListener('click', () => {
+        input.value = button.dataset.example || '';
+        render();
+      });
+    });
+    converter.querySelector('[data-copy]')!.addEventListener('click', async () => {
+      if (!voiceText) {
+        message.textContent = '请先粘贴并转换文字。';
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(voiceText);
+        copyLabel.textContent = '已复制';
+        message.textContent = '配音输入稿已复制；字幕请继续使用原稿。';
+      } catch {
+        message.textContent = '浏览器未允许自动复制，请选中结果手动复制。';
+      }
+    });
+
+    const loadAudio = (file: File | null) => {
+      selectedAudio = file;
+      audioResult.hidden = true;
+      if (selectedAudioUrl) URL.revokeObjectURL(selectedAudioUrl);
+
+      if (!file) {
+        audioName.textContent = '尚未选择文件';
+        audioDuration.textContent = '—';
+        audioPlayer.hidden = true;
+        analyzeButton.disabled = true;
+        audioStatus.textContent = '默认只分析新上传的音频，不读取上方或上一次的文字。';
+        return;
+      }
+
+      const supported = file.type.startsWith('audio/') || /\.(wav|mp3|m4a)$/i.test(file.name);
+      if (!supported) {
+        selectedAudio = null;
+        audioName.textContent = '文件格式不支持';
+        audioDuration.textContent = '—';
+        audioPlayer.hidden = true;
+        analyzeButton.disabled = true;
+        audioStatus.textContent = '请拖入 WAV、MP3 或 M4A 音频文件。';
+        return;
+      }
+
+      selectedAudioUrl = URL.createObjectURL(file);
+      audioPlayer.src = selectedAudioUrl;
+      audioPlayer.hidden = false;
+      audioName.textContent = `${file.name} · ${(file.size / 1024 / 1024).toFixed(1)} MB`;
+      audioDuration.textContent = '读取中';
+      analyzeButton.disabled = false;
+      audioStatus.textContent = useScriptReference.checked
+        ? '音频已载入，将与上方当前配音稿核对。'
+        : '音频已载入，将独立识别并听音，不使用已有文字。';
+    };
+
+    audioInput.addEventListener('change', () => {
+      loadAudio(audioInput.files?.[0] || null);
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      uploadZone.addEventListener(eventName, event => {
+        event.preventDefault();
+        event.stopPropagation();
+        uploadZone.classList.add('is-dragging');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      uploadZone.addEventListener(eventName, event => {
+        event.preventDefault();
+        event.stopPropagation();
+        uploadZone.classList.remove('is-dragging');
+      });
+    });
+
+    uploadZone.addEventListener('drop', event => {
+      const file = event.dataTransfer?.files?.[0] || null;
+      loadAudio(file);
+    });
+
+    audioPlayer.addEventListener('loadedmetadata', () => {
+      if (Number.isFinite(audioPlayer.duration)) audioDuration.textContent = `${audioPlayer.duration.toFixed(1)} 秒`;
+    });
+
+    analyzeButton.addEventListener('click', async () => {
+      if (!selectedAudio) {
+        audioStatus.textContent = '请先上传需要检查的音频。';
+        return;
+      }
+
+      if (useScriptReference.checked) render();
+
+      const groupedTargets = useScriptReference.checked ? [...appliedAudioRules.reduce((map, rule) => {
+        const current = map.get(rule.id);
+        if (current) current.count += 1;
+        else map.set(rule.id, { ...rule, count: 1 });
+        return map;
+      }, new Map<string, AppliedRule & { count: number }>()).values()] : [];
+
+      analyzeButton.disabled = true;
+      analyzeLabel.textContent = '正在识别音频…';
+      audioStatus.textContent = '正在核对实际语音与目标读音，请稍候。';
+      audioResult.hidden = true;
+
+      try {
+        const query = new URLSearchParams({
+          expected: useScriptReference.checked ? voiceText : '',
+          targets: JSON.stringify(groupedTargets),
+          duration: Number.isFinite(audioPlayer.duration) ? audioPlayer.duration.toFixed(1) : '',
+        });
+        const response = await fetch(`/api/analyze?${query}`, {
+          method: 'POST',
+          headers: { 'Content-Type': selectedAudio.type || 'audio/wav' },
+          body: selectedAudio,
+        });
+        if (!response.ok) throw new Error('audio_analysis_failed');
+
+        const result = await response.json();
+        const visibleChecks = (result.checks || []).filter((check: { status: string }) => check.status !== 'pass');
+        const warningCount = visibleChecks.filter((check: { status: string }) => check.status === 'warning').length;
+        const reviewCount = visibleChecks.length - warningCount;
+        const hasReference = result.referenceMode === 'script';
+        const isInsufficient = result.quality?.status === 'insufficient';
+        const needsGeneralReview = hasReference && result.quality?.status === 'review';
+
+        if (warningCount > 0) {
+          audioVerdict.dataset.status = 'warning';
+          audioVerdictIcon.textContent = '!';
+          audioVerdictTitle.textContent = `发现 ${warningCount} 处音频问题`;
+          audioVerdictDetail.textContent = '检测到疑似错读、漏读或多读，请查看下方问题并点击复听。';
+          audioSummary.textContent = `未通过 · ${result.duration} 秒`;
+        } else if (reviewCount > 0 || isInsufficient || needsGeneralReview) {
+          audioVerdict.dataset.status = 'review';
+          audioVerdictIcon.textContent = '?';
+          audioVerdictTitle.textContent = reviewCount > 0 ? `有 ${reviewCount} 处需要复听` : isInsufficient ? '暂时无法判断' : '建议复听音频';
+          audioVerdictDetail.textContent = reviewCount > 0
+            ? '没有发现明确错读，但部分发音置信度不足，需要人工确认。'
+            : isInsufficient ? '音频识别不够稳定，请更换清晰音频后重新检查。' : '未发现明确错读，但识别结果不足以直接判定通过。';
+          audioSummary.textContent = `待确认 · ${result.duration} 秒`;
+        } else if (hasReference) {
+          audioVerdict.dataset.status = 'pass';
+          audioVerdictIcon.textContent = '✓';
+          audioVerdictTitle.textContent = '音频没有问题';
+          audioVerdictDetail.textContent = '未发现明显错读、漏读或多读。';
+          audioSummary.textContent = `通过 · ${result.duration} 秒`;
+        } else {
+          audioVerdict.dataset.status = 'pass';
+          audioVerdictIcon.textContent = '✓';
+          audioVerdictTitle.textContent = '未发现明显发音问题';
+          audioVerdictDetail.textContent = '本次仅检查发音；未提供原稿，不判断是否漏读。';
+          audioSummary.textContent = `发音检查通过 · ${result.duration} 秒`;
+        }
+
+        audioCheckList.replaceChildren();
+
+        if (visibleChecks.length) {
+          visibleChecks.forEach((check: { source: string; replacement: string; status: string; detail: string; start?: number; end?: number }) => {
+            const item = document.createElement('li');
+            item.dataset.status = check.status;
+            const badge = document.createElement('span');
+            badge.textContent = check.status === 'warning'
+              ? check.replacement === '未读出' ? '疑似漏读' : check.source === '原稿无' ? '疑似多读' : '疑似错读'
+              : '需要复听';
+            const copy = document.createElement('div');
+            const title = document.createElement('strong');
+            title.textContent = `${check.source} → ${check.replacement}`;
+            const detail = document.createElement('p');
+            detail.textContent = check.detail;
+            copy.append(title, detail);
+            item.append(badge, copy);
+            if (typeof check.start === 'number') {
+              item.classList.add('playable');
+              item.title = '点击复听这一处';
+              item.addEventListener('click', () => {
+                audioPlayer.currentTime = check.start || 0;
+                audioPlayer.play();
+                window.setTimeout(() => audioPlayer.pause(), Math.max(900, ((check.end || check.start || 0) - (check.start || 0) + .7) * 1000));
+              });
+            }
+            audioCheckList.append(item);
+          });
+        }
+        audioResult.hidden = false;
+        audioStatus.textContent = '二次检查已完成。';
+      } catch {
+        audioStatus.textContent = '在线语音检查暂时不可用，请稍后重试。';
+      } finally {
+        analyzeButton.disabled = false;
+        analyzeLabel.textContent = '重新检查这段音频';
+      }
+    });
+
+    render();
+  }
+</script>
+
+<style is:global>
+  html:has(.accent-page){scroll-snap-type:none;background:#130c0f}
+  body:has(.accent-page){min-height:100vh;background:radial-gradient(circle at 76% 8%,#7d39262e,transparent 25%),linear-gradient(180deg,#160d11,#0e0a0c);color:#f7eee9}
+</style>
+
+<style>
+  .accent-page{--peach:#e7ab92;--text:#f7eee9;--muted:#ae9890;--line:#e5b9a528;min-height:100vh;padding-bottom:72px;font-family:Inter,system-ui,-apple-system,'PingFang TC','PingFang SC',sans-serif;-webkit-font-smoothing:antialiased}
+  .topbar{width:min(1160px,calc(100% - 64px));height:74px;margin:auto;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
+  .brand{font-size:15px;font-weight:650;letter-spacing:-.03em}.brand span{margin-left:8px;color:var(--peach)}.prototype-label{font:500 10px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.13em;color:#a98c82}
+  .intro,.converter{width:min(1040px,calc(100% - 64px));margin-inline:auto}.intro{padding:74px 0 46px}.eyebrow{margin:0 0 18px;color:var(--peach);font:500 11px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.14em}.intro h1{margin:0;font-size:clamp(38px,5vw,64px);font-weight:520;line-height:1.22;letter-spacing:-.055em}.intro h1 span{color:#cfaaa0}.intro-copy{max-width:630px;margin:24px 0 0;color:var(--muted);font-size:15px;line-height:1.85}
+  .converter{overflow:hidden;border:1px solid var(--line);border-radius:18px;background:#1d1316;box-shadow:0 34px 90px #0502044a}.converter-bar{height:58px;padding:0 26px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);color:#cfb5aa;font-size:11px}.converter-bar>div{display:flex;align-items:center;gap:9px}.converter-bar strong{font-weight:500}.converter-bar>span{color:#987e76}.status-dot{width:6px;height:6px;border-radius:50%;background:#d69a82;box-shadow:0 0 0 4px #d69a8214}
+  .workspace{display:grid;grid-template-columns:1fr 1fr}.editor-panel,.result-panel{padding:30px}.editor-panel{border-right:1px solid var(--line);background:#191013}.panel-heading,.panel-heading>div,.result-label,.editor-footer,.examples,.convert-button,.copy-button{display:flex;align-items:center}.panel-heading{justify-content:space-between;gap:16px;margin-bottom:18px}.panel-heading>div{gap:10px}.panel-heading>div>span{font:500 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:#9e8178}.panel-heading h2{margin:0;font-size:13px;font-weight:500}.panel-heading button{color:#9f877f;font-size:10px;text-decoration:underline;text-underline-offset:3px}.change-count{padding:6px 9px;border-radius:999px;background:#6f392f;color:#f0bfaa;font-size:10px}.change-count[data-empty=true]{background:#292024;color:#9b8780}
+  textarea{display:block;width:100%;min-height:196px;resize:vertical;border:1px solid #ddb3a02b;border-radius:9px;outline:0;background:#24181c;color:#f5eae4;padding:17px 18px;font:400 16px/1.9 inherit;transition:border-color .2s,box-shadow .2s}textarea:focus{border-color:#dca38b;box-shadow:0 0 0 3px #dca38b15}textarea::placeholder{color:#7f6c68}.editor-footer{justify-content:space-between;margin-top:10px;color:#806e69;font-size:9px}.examples{flex-wrap:wrap;gap:7px;margin:22px 0 16px}.examples>span{margin-right:3px;color:#806e69;font-size:9px}.examples button{padding:5px 8px;border:1px solid #d4aa982b;border-radius:999px;color:#b99c91;font-size:9px}.examples button:hover{border-color:#dca38b;color:#efc5b3}.convert-button,.copy-button{width:100%;justify-content:space-between;padding:13px 15px;border-radius:7px;background:#e6ad95;color:#281616;font-size:12px;font-weight:600}.convert-button:hover,.copy-button:hover{background:#f0c0aa}.convert-button span,.copy-button span:last-child{font-size:17px;font-weight:400}
+  .result-card{min-height:91px;padding:15px 17px;border:1px solid #ddb3a021;border-radius:9px;background:#24181c}.result-label{justify-content:space-between;color:#a68b82;font-size:9px}.result-label small{color:#7f6b66}.result-card>p{margin:12px 0 0;color:#d6c1b8;font-size:16px;line-height:1.9;white-space:pre-wrap;overflow-wrap:anywhere}.voice-card{background:#342127;border-color:#df9f8447}.voice-card>p{color:#fff1e9}.voice-card mark{padding:1px 3px;border-radius:3px;border-bottom:1px solid #e4a58a;background:#d8977c28;color:#ffc7ae}.voice-card p span{white-space:pre-wrap}
+  .rule-card{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:14px;margin:12px 0;padding:13px 15px;border-radius:8px;background:#171013}.rule-card[hidden]{display:none}.rule-change{display:flex;align-items:center;gap:7px}.rule-change span{display:grid;place-items:center;width:25px;height:25px;border-radius:5px;background:#2c1c21;color:#c9aaa0;font-size:12px}.rule-change span:last-child{background:#d99c83;color:#2b1716}.rule-change i{color:#806963;font-style:normal}.rule-card p{margin:0;color:#9f8780;font-size:9px;line-height:1.65}.copy-button{margin-top:14px}.message{min-height:17px;margin:10px 0 0;color:#846f69;font-size:9px;line-height:1.7}
+  .audio-check{padding:26px 30px 30px;border-top:1px solid var(--line);background:#171013}.audio-check-heading,.audio-check-heading>div,.audio-file-row,.analyze-button{display:flex;align-items:center}.audio-check-heading{justify-content:space-between;margin-bottom:18px}.audio-check-heading>div{gap:10px}.audio-check-heading>div>span{font:500 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:#9e8178}.audio-check-heading h2{margin:0;font-size:13px;font-weight:500}.audio-check-heading small{padding:6px 9px;border-radius:999px;background:#292024;color:#9b8780;font-size:9px}.audio-check-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:14px}.upload-zone{min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px dashed #dbad9961;border-radius:10px;background:#201519;color:#a88e85;cursor:pointer;text-align:center;transition:border-color .2s,background .2s,box-shadow .2s,transform .2s}.upload-zone:hover,.upload-zone.is-dragging{border-color:#e7ab92;background:#2b1b21;box-shadow:inset 0 0 0 2px #e7ab9224}.upload-zone.is-dragging{transform:scale(.995)}.upload-zone.is-dragging .upload-symbol{background:#e7ab92;color:#281616;transform:translateY(-2px)}.upload-zone input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}.upload-symbol{display:grid;place-items:center;width:32px;height:32px;margin-bottom:13px;border-radius:50%;background:#e7ab9218;color:#e7ab92;font-size:20px;transition:background .2s,color .2s,transform .2s}.upload-zone strong{color:#d7beb4;font-size:13px;font-weight:500}.upload-zone>span:last-child{margin-top:7px;font-size:9px}.audio-review{min-height:160px;padding:18px;border:1px solid #ddb3a021;border-radius:10px;background:#24181c}.audio-file-row{justify-content:space-between;gap:15px}.audio-file-row>div{min-width:0}.audio-file-row span{display:block;color:#8e7770;font-size:9px}.audio-file-row strong{display:block;overflow:hidden;margin-top:6px;color:#d9c5bc;font-size:11px;font-weight:500;text-overflow:ellipsis;white-space:nowrap}.audio-file-row>span{flex:none}.audio-review audio{width:100%;height:30px;margin:14px 0 8px}.reference-toggle{display:flex;align-items:center;gap:8px;margin-top:9px;color:#9b827a;font-size:9px;cursor:pointer}.reference-toggle input{width:13px;height:13px;accent-color:#e6ad95}.analyze-button{width:100%;justify-content:space-between;margin-top:14px;padding:11px 13px;border-radius:7px;background:#e6ad95;color:#281616;font-size:11px;font-weight:600}.analyze-button:disabled{cursor:not-allowed;background:#46343a;color:#87747a}.analyze-button span:last-child{font-size:16px}.audio-status{margin:9px 0 0;color:#87716b;font-size:9px;line-height:1.6}.audio-result{margin-top:14px;padding:18px;border:1px solid #dca38b42;border-radius:10px;background:#2a1b20}.audio-result[hidden]{display:none}.audio-result-summary{display:flex;align-items:center;justify-content:space-between;padding-bottom:13px;border-bottom:1px solid #e5b9a51f;color:#9d847c;font-size:9px}.audio-result-summary strong{color:#efb9a2;font-size:11px;font-weight:500}.audio-verdict{display:flex;align-items:center;gap:13px;margin-top:15px;padding:16px;border:1px solid #416c5945;border-radius:9px;background:#17251f}.audio-verdict-icon{display:grid;place-items:center;flex:0 0 32px;width:32px;height:32px;border-radius:50%;background:#365d4c;color:#c3ecd9;font-size:16px;font-weight:700}.audio-verdict strong{display:block;color:#d6f0e4;font-size:13px;font-weight:600}.audio-verdict p{margin:5px 0 0;color:#8fb09f;font-size:9px;line-height:1.55}.audio-verdict[data-status=warning]{border-color:#8d51494f;background:#291718}.audio-verdict[data-status=warning] .audio-verdict-icon{background:#743f3b;color:#ffd1c8}.audio-verdict[data-status=warning] strong{color:#f6d2ca}.audio-verdict[data-status=warning] p{color:#bd8b83}.audio-verdict[data-status=review]{border-color:#896b414f;background:#281f16}.audio-verdict[data-status=review] .audio-verdict-icon{background:#6e5432;color:#f5d2a1}.audio-verdict[data-status=review] strong{color:#f0d5b1}.audio-verdict[data-status=review] p{color:#b69b78}.audio-check-list{display:grid;gap:8px;margin:12px 0 0;padding:0;list-style:none}.audio-check-list:empty{display:none}.audio-check-list li{display:grid;grid-template-columns:64px 1fr;gap:12px;padding:11px 12px;border-radius:8px;background:#1a1114}.audio-check-list li.playable{cursor:pointer}.audio-check-list li.playable:hover{box-shadow:inset 0 0 0 1px #e7ab9270}.audio-check-list li>span{align-self:start;padding:4px 6px;border-radius:999px;background:#5e3f35;color:#efb69e;font-size:8px;text-align:center}.audio-check-list li[data-status=review]>span{background:#59432d;color:#f0c497}.audio-check-list strong{color:#e4d1c8;font-size:10px;font-weight:500}.audio-check-list p{margin:4px 0 0;color:#8f7871;font-size:9px;line-height:1.6}
+  .converter-footer{display:grid;grid-template-columns:100px 1fr;gap:18px;padding:20px 26px;border-top:1px solid var(--line);color:#927b74;font-size:10px}.converter-footer>span{color:#c5a296}.converter-footer p{margin:0;line-height:1.7}.converter-footer strong{color:#dac2b8;font-weight:500}
+  .audio-check-heading>a{padding:6px 9px;border-radius:999px;background:#292024;color:#b99c91;font-size:9px}.audio-check-heading>a:hover{color:#efc5b3}
+  button:focus-visible,textarea:focus-visible,a:focus-visible,.upload-zone:focus-within{outline:2px solid #f4c5b0;outline-offset:3px}
+  @media(max-width:720px){.topbar,.intro,.converter{width:calc(100% - 32px)}.intro{padding:52px 0 34px}.intro h1{font-size:38px}.workspace{grid-template-columns:1fr}.editor-panel{border-right:0;border-bottom:1px solid var(--line)}.editor-panel,.result-panel{padding:22px}.converter-bar{padding:0 20px}.audio-check{padding:22px}.audio-check-grid{grid-template-columns:1fr}.converter-footer{grid-template-columns:1fr;gap:6px;padding:18px 22px}}
+</style>

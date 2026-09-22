@@ -1,0 +1,217 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="音频发音检查"
+  description="独立上传配音音频，本地转写并逐词检查；可选粘贴对应原稿提升准确度。"
+>
+  <main class="check-page">
+    <header>
+      <a href="/" class="brand">YUKIE <span>✳</span></a>
+      <a href="/accent-demo/">返回文字转换</a>
+    </header>
+
+    <section class="intro">
+      <p>AUDIO PRONUNCIATION CHECK · TW</p>
+      <h1>只检查这一次<br /><span>新上传的音频。</span></h1>
+      <div class="mode-notes">
+        <p><strong>仅上传音频</strong><span>本地转写后做逐词听音初检，不读取任何历史文字。</span></p>
+        <p><strong>同时粘贴原稿</strong><span>用原稿复核转写与声学对齐，适合正式验收，准确度更高。</span></p>
+      </div>
+    </section>
+
+    <section class="checker" data-audio-checker>
+      <div class="checker-bar"><span class="dot"></span><strong>本地分析 · 不消耗 API 额度</strong><small>每次上传重新开始</small></div>
+      <div class="input-grid">
+        <label class="drop-zone" data-drop-zone>
+          <input type="file" accept="audio/*,.wav,.mp3,.m4a" data-audio-input />
+          <i>＋</i>
+          <strong>拖拽或点击上传音频</strong>
+          <span>WAV、MP3、M4A · 最大 60 MB</span>
+        </label>
+        <div class="settings">
+          <label for="reference-script"><span>对应原稿 <em>建议提供</em></span><small>留空则独立听音</small></label>
+          <textarea id="reference-script" data-reference rows="6" placeholder="粘贴这段音频实际应该朗读的文字……"></textarea>
+        </div>
+      </div>
+
+      <div class="file-card">
+        <div class="file-row"><div><span>待检音频</span><strong data-audio-name>尚未选择文件</strong></div><span data-duration>—</span></div>
+        <audio controls preload="metadata" data-player hidden></audio>
+        <button type="button" data-analyze disabled><span data-analyze-label>开始检查</span><span>→</span></button>
+        <p data-status role="status" aria-live="polite">上传后只使用本次音频；建议同时提供对应原稿。</p>
+      </div>
+
+      <section class="result" data-result hidden>
+        <div class="result-head"><span>检查结果</span><strong data-summary></strong></div>
+        <div class="quality" data-quality>
+          <i data-verdict-icon aria-hidden="true">✓</i>
+          <div><strong data-verdict-title></strong><span data-verdict-detail></span></div>
+        </div>
+        <ul class="issues" data-issues></ul>
+      </section>
+    </section>
+  </main>
+</BaseLayout>
+
+<script>
+  const checker = document.querySelector<HTMLElement>('[data-audio-checker]');
+  if (checker) {
+    const dropZone = checker.querySelector<HTMLElement>('[data-drop-zone]')!;
+    const audioInput = checker.querySelector<HTMLInputElement>('[data-audio-input]')!;
+    const reference = checker.querySelector<HTMLTextAreaElement>('[data-reference]')!;
+    const audioName = checker.querySelector<HTMLElement>('[data-audio-name]')!;
+    const duration = checker.querySelector<HTMLElement>('[data-duration]')!;
+    const player = checker.querySelector<HTMLAudioElement>('[data-player]')!;
+    const analyze = checker.querySelector<HTMLButtonElement>('[data-analyze]')!;
+    const analyzeLabel = checker.querySelector<HTMLElement>('[data-analyze-label]')!;
+    const status = checker.querySelector<HTMLElement>('[data-status]')!;
+    const resultPanel = checker.querySelector<HTMLElement>('[data-result]')!;
+    const summary = checker.querySelector<HTMLElement>('[data-summary]')!;
+    const quality = checker.querySelector<HTMLElement>('[data-quality]')!;
+    const verdictIcon = checker.querySelector<HTMLElement>('[data-verdict-icon]')!;
+    const verdictTitle = checker.querySelector<HTMLElement>('[data-verdict-title]')!;
+    const verdictDetail = checker.querySelector<HTMLElement>('[data-verdict-detail]')!;
+    const issues = checker.querySelector<HTMLUListElement>('[data-issues]')!;
+    let file: File | null = null;
+    let objectUrl = '';
+
+    const loadAudio = (nextFile: File | null) => {
+      resultPanel.hidden = true;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      file = nextFile;
+      if (!file || !(file.type.startsWith('audio/') || /\.(wav|mp3|m4a)$/i.test(file.name))) {
+        file = null;
+        audioName.textContent = nextFile ? '文件格式不支持' : '尚未选择文件';
+        duration.textContent = '—';
+        player.hidden = true;
+        analyze.disabled = true;
+        status.textContent = '请上传 WAV、MP3 或 M4A 音频。';
+        return;
+      }
+      objectUrl = URL.createObjectURL(file);
+      player.src = objectUrl;
+      player.hidden = false;
+      audioName.textContent = `${file.name} · ${(file.size / 1024 / 1024).toFixed(1)} MB`;
+      duration.textContent = '读取中';
+      analyze.disabled = false;
+      status.textContent = reference.value.trim() ? '将按本次原稿进行高精度核对。' : '将独立识别本次音频，不使用历史文字。';
+    };
+
+    audioInput.addEventListener('change', () => loadAudio(audioInput.files?.[0] || null));
+    ['dragenter', 'dragover'].forEach(name => dropZone.addEventListener(name, event => {
+      event.preventDefault();
+      dropZone.classList.add('dragging');
+    }));
+    ['dragleave', 'drop'].forEach(name => dropZone.addEventListener(name, event => {
+      event.preventDefault();
+      dropZone.classList.remove('dragging');
+    }));
+    dropZone.addEventListener('drop', event => loadAudio(event.dataTransfer?.files?.[0] || null));
+    player.addEventListener('loadedmetadata', () => {
+      if (Number.isFinite(player.duration)) duration.textContent = `${player.duration.toFixed(1)} 秒`;
+    });
+    reference.addEventListener('input', () => {
+      resultPanel.hidden = true;
+      if (file) status.textContent = reference.value.trim() ? '将按本次原稿进行高精度核对。' : '将独立识别本次音频，不使用历史文字。';
+    });
+
+    analyze.addEventListener('click', async () => {
+      if (!file) return;
+      analyze.disabled = true;
+      analyzeLabel.textContent = '正在识别与听音…';
+      status.textContent = '正在分析本次音频；低置信结果不会直接判错。';
+      resultPanel.hidden = true;
+      try {
+        const query = new URLSearchParams({
+          expected: reference.value.trim(),
+          targets: '[]',
+          duration: Number.isFinite(player.duration) ? player.duration.toFixed(1) : '',
+        });
+        const response = await fetch(`/api/analyze?${query}`, {
+          method: 'POST', headers: { 'Content-Type': file.type || 'audio/wav' }, body: file,
+        });
+        if (!response.ok) throw new Error('analysis_failed');
+        const data = await response.json();
+        const visibleChecks = (data.checks || []).filter((check: { status: string }) => check.status !== 'pass');
+        const warningCount = visibleChecks.filter((check: { status: string }) => check.status === 'warning').length;
+        const reviewCount = visibleChecks.length - warningCount;
+        const hasReference = data.referenceMode === 'script';
+        const isInsufficient = data.quality?.status === 'insufficient';
+        const needsGeneralReview = hasReference && data.quality?.status === 'review';
+
+        if (warningCount > 0) {
+          quality.dataset.status = 'warning';
+          verdictIcon.textContent = '!';
+          verdictTitle.textContent = `发现 ${warningCount} 处音频问题`;
+          verdictDetail.textContent = '检测到疑似错读、漏读或多读，请查看下方问题并点击复听。';
+          summary.textContent = `未通过 · ${data.duration} 秒`;
+        } else if (reviewCount > 0 || isInsufficient || needsGeneralReview) {
+          quality.dataset.status = 'review';
+          verdictIcon.textContent = '?';
+          verdictTitle.textContent = reviewCount > 0 ? `有 ${reviewCount} 处需要复听` : isInsufficient ? '暂时无法判断' : '建议复听音频';
+          verdictDetail.textContent = reviewCount > 0
+            ? '没有发现明确错读，但部分发音置信度不足，需要人工确认。'
+            : isInsufficient ? '音频识别不够稳定，请更换清晰音频后重新检查。' : '未发现明确错读，但识别结果不足以直接判定通过。';
+          summary.textContent = `待确认 · ${data.duration} 秒`;
+        } else if (hasReference) {
+          quality.dataset.status = 'pass';
+          verdictIcon.textContent = '✓';
+          verdictTitle.textContent = '音频没有问题';
+          verdictDetail.textContent = '未发现明显错读、漏读或多读。';
+          summary.textContent = `通过 · ${data.duration} 秒`;
+        } else {
+          quality.dataset.status = 'pass';
+          verdictIcon.textContent = '✓';
+          verdictTitle.textContent = '未发现明显发音问题';
+          verdictDetail.textContent = '本次仅检查发音；未提供原稿，不判断是否漏读。';
+          summary.textContent = `发音检查通过 · ${data.duration} 秒`;
+        }
+
+        issues.replaceChildren();
+        visibleChecks.forEach((issue: { source: string; replacement: string; status: string; detail: string; start?: number; end?: number }) => {
+          const item = document.createElement('li');
+          item.dataset.status = issue.status;
+          const badge = document.createElement('span');
+          badge.textContent = issue.status === 'warning'
+            ? issue.replacement === '未读出' ? '疑似漏读' : issue.source === '原稿无' ? '疑似多读' : '疑似错读'
+            : '需要复听';
+          const copy = document.createElement('div');
+          const title = document.createElement('strong');
+          title.textContent = `原稿「${issue.source}」 → 听到「${issue.replacement}」`;
+          const detail = document.createElement('p');
+          detail.textContent = issue.detail;
+          copy.append(title, detail);
+          item.append(badge, copy);
+          if (typeof issue.start === 'number') {
+            item.classList.add('playable');
+            item.title = '点击复听这一处';
+            item.addEventListener('click', () => {
+              player.currentTime = issue.start || 0;
+              player.play();
+              window.setTimeout(() => player.pause(), Math.max(900, ((issue.end || issue.start || 0) - (issue.start || 0) + .7) * 1000));
+            });
+          }
+          issues.append(item);
+        });
+        resultPanel.hidden = false;
+        status.textContent = '本次检查已完成。';
+      } catch {
+        status.textContent = '在线音频分析暂时不可用，请稍后重试。';
+      } finally {
+        analyze.disabled = false;
+        analyzeLabel.textContent = '重新检查这段音频';
+      }
+    });
+  }
+</script>
+
+<style is:global>
+  html:has(.check-page){background:#130c0f;scroll-snap-type:none}
+  body:has(.check-page){min-height:100vh;background:radial-gradient(circle at 75% 0,#7d39262c,transparent 28%),linear-gradient(#160d11,#0e0a0c);color:#f7eee9}
+</style>
+
+<style>
+  .check-page{--peach:#e7ab92;--muted:#a98f87;--line:#e5b9a52b;min-height:100vh;padding-bottom:72px;font-family:Inter,system-ui,-apple-system,'PingFang TC','PingFang SC',sans-serif;-webkit-font-smoothing:antialiased}.check-page>header{width:min(1160px,calc(100% - 64px));height:74px;margin:auto;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}header>a:last-child{color:#a98f87;font-size:11px}.brand{font-size:15px;font-weight:650}.brand span{margin-left:8px;color:var(--peach)}.intro,.checker{width:min(1040px,calc(100% - 64px));margin-inline:auto}.intro{padding:72px 0 42px}.intro>p{margin:0 0 18px;color:var(--peach);font:500 11px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.14em}.intro h1{margin:0;font-size:clamp(40px,5vw,64px);font-weight:520;line-height:1.2;letter-spacing:-.055em}.intro h1 span{color:#cfaaa0}.mode-notes{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:30px}.mode-notes p{margin:0;padding-top:14px;border-top:1px solid var(--line)}.mode-notes strong,.mode-notes span{display:block}.mode-notes strong{font-size:12px;font-weight:550}.mode-notes span{margin-top:6px;color:var(--muted);font-size:10px;line-height:1.7}.checker{overflow:hidden;border:1px solid var(--line);border-radius:18px;background:#1d1316;box-shadow:0 34px 90px #0502044a}.checker-bar{height:58px;padding:0 26px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--line);color:#cfb5aa;font-size:11px}.checker-bar strong{font-weight:500}.checker-bar small{margin-left:auto;color:#8d7770}.dot{width:6px;height:6px;border-radius:50%;background:#d69a82;box-shadow:0 0 0 4px #d69a8214}.input-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:14px;padding:26px}.drop-zone{min-height:230px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px dashed #dbad9961;border-radius:10px;background:#191013;color:#a88e85;cursor:pointer;text-align:center;transition:.2s}.drop-zone:hover,.drop-zone.dragging{border-color:var(--peach);background:#2b1b21}.drop-zone input{position:absolute;width:1px;height:1px;opacity:0}.drop-zone i{display:grid;place-items:center;width:40px;height:40px;margin-bottom:15px;border-radius:50%;background:#e7ab9218;color:var(--peach);font-size:22px;font-style:normal}.drop-zone strong{color:#d7beb4;font-size:14px;font-weight:500}.drop-zone span{margin-top:8px;font-size:10px}.settings{padding:20px;border:1px solid #ddb3a021;border-radius:10px;background:#24181c}.settings>label{display:flex;justify-content:space-between;color:#d4bcb2;font-size:11px}.settings em{margin-left:6px;color:#e9b299;font-size:9px;font-style:normal}.settings small{color:#816e68}.settings textarea{width:100%;min-height:164px;margin-top:14px;padding:15px;border:1px solid #ddb3a02b;border-radius:8px;outline:0;background:#1a1114;color:#f3e7e1;font:400 13px/1.8 inherit;resize:vertical}.settings textarea:focus{border-color:#dca38b}.file-card{margin:0 26px 26px;padding:20px;border:1px solid #ddb3a021;border-radius:10px;background:#24181c}.file-row{display:flex;align-items:center;justify-content:space-between;gap:15px}.file-row span{display:block;color:#8e7770;font-size:9px}.file-row strong{display:block;overflow:hidden;margin-top:6px;color:#d9c5bc;font-size:12px;font-weight:500;text-overflow:ellipsis;white-space:nowrap}.file-card audio{width:100%;height:34px;margin-top:14px}.file-card button{width:100%;display:flex;justify-content:space-between;margin-top:14px;padding:13px 15px;border-radius:7px;background:#e6ad95;color:#281616;font-size:12px;font-weight:600}.file-card button:disabled{cursor:not-allowed;background:#46343a;color:#87747a}.file-card p{margin:9px 0 0;color:#87716b;font-size:9px}.result{margin:0 26px 26px;padding:20px;border:1px solid #dca38b42;border-radius:10px;background:#2a1b20}.result[hidden]{display:none}.result-head{display:flex;justify-content:space-between;align-items:center;padding-bottom:14px;border-bottom:1px solid var(--line);color:#9d847c;font-size:9px}.result-head strong{color:#efb9a2;font-size:11px;font-weight:500}.quality{display:flex;align-items:center;gap:13px;margin-top:15px;padding:16px;border:1px solid #416c5945;border-radius:9px;background:#17251f}.quality>i{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border-radius:50%;background:#365d4c;color:#c3ecd9;font-size:17px;font-style:normal;font-weight:700}.quality div strong{display:block;color:#d6f0e4;font-size:13px;font-weight:600}.quality div span{display:block;margin-top:5px;color:#8fb09f;font-size:9px;line-height:1.55}.quality[data-status=warning]{border-color:#8d51494f;background:#291718}.quality[data-status=warning]>i{background:#743f3b;color:#ffd1c8}.quality[data-status=warning] div strong{color:#f6d2ca}.quality[data-status=warning] div span{color:#bd8b83}.quality[data-status=review]{border-color:#896b414f;background:#281f16}.quality[data-status=review]>i{background:#6e5432;color:#f5d2a1}.quality[data-status=review] div strong{color:#f0d5b1}.quality[data-status=review] div span{color:#b69b78}.issues{display:grid;gap:8px;margin:12px 0 0;padding:0;list-style:none}.issues:empty{display:none}.issues li{display:grid;grid-template-columns:72px 1fr;gap:12px;padding:13px;border:1px solid #c66d6140;border-radius:8px;background:#1a1114}.issues li.playable{cursor:pointer}.issues li.playable:hover{border-color:#e7ab92}.issues li>span{align-self:start;padding:5px 7px;border-radius:999px;background:#5c2f2e;color:#ffaca4;font-size:8px;text-align:center}.issues li[data-status=review]>span{background:#59432d;color:#f0c497}.issues strong{color:#f4d8ce;font-size:11px;font-weight:550}.issues p{margin:5px 0 0;color:#9f8179;font-size:9px;line-height:1.65}@media(max-width:720px){.check-page>header,.intro,.checker{width:calc(100% - 32px)}.intro{padding:50px 0 32px}.mode-notes,.input-grid{grid-template-columns:1fr}.input-grid{padding:20px}.file-card,.result{margin-inline:20px}.checker-bar{padding-inline:20px}}
+</style>

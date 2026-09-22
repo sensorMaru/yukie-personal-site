@@ -1,0 +1,74 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import VoiceProjectCover from '../../components/VoiceProjectCover.astro';
+import VoiceProgressDemo from '../../components/VoiceProgressDemo.astro';
+const decisions = [
+  ['01', '适配读音，不改写创意。', '保留客户确认的口播原意，把本地用词建议与配音替代字分开处理。不确定的读法只提示，不强行替换。'],
+  ['02', '衔接现有工具，不重做克隆。', '参考音频仍在原配音平台使用。网页只处理配音稿与批次进度，不承诺“选台湾口音就能生成地道声音”。'],
+  ['03', '原稿与配音稿，始终分开。', '发音替代字只服务于模型输入，不能进入字幕。保留原稿、修改高亮和逐处撤销，让每次调整都可以核对。'],
+];
+---
+<BaseLayout title="台式口播本地化助手｜Yukie 作品集" description="从真实批量配音流程出发，探索台式读音适配、双稿对照与跨平台复制进度管理。方案与交互示意，效果待验证。">
+  <div class="voice-case">
+    <header class="voice-nav"><a class="brand" href="/">YUKIE <span>✳</span></a><nav aria-label="项目章节"><a href="#problem">问题</a><a href="#approach">方案</a><a href="#prototype">交互</a><a href="#validation">验证</a></nav><a class="return-link" href="/#projects">返回项目 ↗</a></header>
+    <main>
+      <section class="voice-hero wrap">
+        <div class="hero-top"><span>01 / PRODUCT EXPLORATION</span><span class="stage-label">方案设计 · 效果待验证</span></div>
+        <p class="hero-name">台式口播本地化助手</p>
+        <h1>让口播说得在地，<br /><span>让批量制作有序。</span></h1>
+        <p class="hero-intro">一次处理 50–60 条口播，难点不只有“怎么读”。<br class="desktop-break" />还有哪些字改过、哪条已经复制，以及切回页面后从哪里继续。</p>
+        <div class="hero-actions"><a class="primary-link" href="#prototype">体验复制进度示意 <span>↓</span></a><a href="#problem">从实际问题开始 ↘</a></div>
+        <dl class="project-meta"><div><dt>项目起点</dt><dd>AnyMind 实习中的配音流程</dd></div><div><dt>产品使用者</dt><dd>批量制作台湾市场口播的同事</dd></div><div><dt>我的工作</dt><dd>问题梳理 / 方案与交互设计</dd></div><div><dt>当前阶段</dt><dd>个人探索，尚未团队验证</dd></div></dl>
+        <figure class="hero-cover"><VoiceProjectCover /><figcaption>界面概念示意 · 非上线产品截图，非实际客户文稿</figcaption></figure>
+      </section>
+
+      <section class="section wrap" id="problem">
+        <div class="section-heading"><p class="eyebrow">01 / THE PROBLEM</p><h2>声音像了，<br />不代表每个字都读对。</h2></div>
+        <div class="problem-content"><p class="lead">在现有制作中，参考音频用于克隆当地人的说话风格；口播稿还需要单独处理当地用词和特定读音。两件事不能互相替代。</p>
+          <div class="problem-row"><span>读音适配</span><p>同样的文字，目标市场可能有不同的惯用读法。制作同事需要知道哪些位置值得注意，而不只是换一种音色。</p></div>
+          <div class="problem-row"><span>批量核对</span><p>一次约 50–60 条口播，需要保持编号、原文和配音稿的对应关系，防止替代字混进字幕或拿错版本。</p></div>
+          <div class="problem-row"><span>跨平台进度</span><p>复制文稿后切到配音平台，回来时容易混淆哪些已经处理。仅靠记忆或反复查看，增加了操作负担。</p></div>
+          <p class="evidence-note">问题来源：个人实际制作流程与需求梳理；尚未完成团队访谈和效率基线测量。</p>
+        </div>
+      </section>
+
+      <section class="section wrap" id="approach">
+        <div class="section-heading"><p class="eyebrow">02 / PRODUCT DECISIONS</p><h2>只补齐最需要的这一段。</h2><p>从口播原稿到可核对的配音输入稿，接回团队已经在用的工具。</p></div>
+        <div class="decision-grid">{decisions.map(([n, title, text]) => <article><span>{n}</span><h3>{title}</h3><p>{text}</p></article>)}</div>
+        <div class="workflow" aria-label="拟议工作流程"><div><small>网页内 · 计划实现</small><ol><li>批量导入原稿</li><li>检查并确认替换</li><li>复制配音稿</li></ol></div><span class="workflow-arrow" aria-hidden="true">↗</span><div class="external-step"><small>已有配音平台</small><strong>参考音频 + 配音稿</strong><p>克隆生成 → 试听调整</p></div><span class="workflow-arrow" aria-hidden="true">↘</span><div><small>回到网页</small><strong>手动标记完成</strong><p>继续下一条口播</p></div></div>
+        <div class="boundary-note"><span>第一版边界</span><p>不训练声音模型，不接入音频克隆，不自动判断全部读音，也不包含画面审核。参考声音应取得声音克隆与商业使用授权。</p></div>
+      </section>
+
+      <section class="section wrap" id="prototype">
+        <div class="section-heading"><p class="eyebrow">03 / INTERACTION DETAIL</p><h2>离开页面，再回来。<br /><span>进度仍然看得见。</span></h2><p>复制是交接动作，完成是业务结果。用不同的颜色和文字，区分这两个状态。</p></div>
+        <VoiceProgressDemo />
+        <div class="detail-grid"><article><span>01 / 批量，不能乱序</span><h3>每条口播都有固定编号。</h3><p>计划支持 Excel 上传及从表格粘贴，按至少 60 条设计。保留条目对应关系，单条失败可以重试，不让整批重来。</p></article><article><span>02 / 已复制 ≠ 已完成</span><h3>颜色帮助记忆，文字明确状态。</h3><p>只有复制成功才变色；在外部平台完成后，由使用者手动确认。筛选未完成项，减少来回查找。</p></article><article><span>03 / 版本不能悄悄变化</span><h3>修改后，提醒重新复制。</h3><p>计划在已复制文稿发生修改时提示“内容已更新，需重新复制”，并保留字幕原稿和修改说明。</p></article></div>
+      </section>
+
+      <section class="section wrap" id="rules">
+        <div class="section-heading"><p class="eyebrow">04 / RULE DESIGN</p><h2>词库记录的，<br />不只是一个替换字。</h2></div>
+        <div class="rule-layout"><div><p class="lead">规则需要带着语境、当地确认和模型实测结果一起保存。</p><p>“我和他”中的“和”可以作为读音适配的测试案例，但不能因此把“和平”里的“和”也替换掉。可接受的不同读法，不应一律判断为错误。</p><p>同音替代能否有效引导当前模型，仍需试听验证。示例不是自动应用的生产规则。</p></div><div class="rule-spec"><div><span>匹配范围</span><strong>词语 + 所在句子 + 用法</strong></div><div><span>目标参考</span><strong>当地团队确认的读法与音频</strong></div><div><span>处理方式</span><strong>原字保留，配音输入单独适配</strong></div><div><span>验证状态</span><strong>待确认 → 实测有效 / 无效</strong></div><div><span>适用条件</span><strong>市场、品牌要求、模型与音色</strong></div></div></div>
+      </section>
+
+      <section class="section wrap" id="validation">
+        <div class="section-heading"><p class="eyebrow">05 / NEXT VALIDATION</p><h2>先证明减少了返工，<br />再扩展成团队工具。</h2><p>目前处于方案与交互验证阶段，团队试用数据将在完成测试后补充。</p></div>
+        <div class="validation-grid"><article><span>观察 01</span><h3>配音可用率</h3><p>同一批实际易错句、同一个克隆声音，比较原稿和适配稿的读音表现，由当地同事核对。</p></article><article><span>观察 02</span><h3>返工次数与耗时</h3><p>记录从输入原稿到得到可用音频的总时间与重新生成次数，而非只统计文字转换速度。</p></article><article><span>观察 03</span><h3>新增错误</h3><p>检查替代字是否造成奇怪停顿、语气变化、错拷文稿或字幕误用，避免修正一处又引入另一处问题。</p></article></div>
+        <div class="status-board"><div><span class="status-dot"></span><strong>已梳理</strong><p>实际流程、产品边界、批量与状态需求</p></div><div><span class="status-dot"></span><strong>当前可体验</strong><p>示例复制、变色、完成标记与本机状态保存</p></div><div><span class="status-dot next"></span><strong>下一步待实现 / 验证</strong><p>批量导入、读音规则、文本转换、团队试用与访问限制</p></div></div>
+      </section>
+      <footer class="voice-footer wrap"><div><p>让一个真实的小问题，成为可验证的产品。</p><span>Yukie / 产品探索记录</span></div><a href="/#projects">返回全部项目 ↗</a></footer>
+    </main>
+  </div>
+</BaseLayout>
+<style is:global>
+  html:has(.voice-case){scroll-snap-type:none;background:#170d10;scroll-padding-top:90px}
+  body:has(.voice-case){background:#170d10;color:#f7ece3}
+</style>
+<style>
+  .voice-case{--line:#d6b5a829;--muted:#c1a59a;--peach:#e8ad94;background:radial-gradient(ellipse at 85% 8%,#75322722,transparent 32%),#170d10;font-family:system-ui,-apple-system,'PingFang SC',sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{width:min(1180px,calc(100% - 96px));margin-inline:auto}.voice-nav{height:76px;padding:0 max(32px,calc((100vw - 1320px)/2));display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);background:#170d10eb;backdrop-filter:blur(18px);position:sticky;top:0;z-index:20;gap:24px}.brand{font-size:20px;font-weight:650;letter-spacing:-.05em}.brand span{margin-left:10px;color:var(--peach);font-weight:400}.voice-nav nav{display:flex;gap:32px;font-size:13px;color:var(--muted)}.return-link{font-size:12px;color:#eac2af}.voice-case a:focus-visible{outline:2px solid var(--peach);outline-offset:6px}.voice-case a:hover{color:var(--peach)}
+  .voice-hero{padding-top:64px}.hero-top{display:flex;justify-content:space-between;gap:16px;align-items:center;font-size:11px;letter-spacing:.12em;color:var(--muted)}.stage-label{border:1px solid var(--line);padding:7px 12px;border-radius:30px;letter-spacing:0}.hero-name{font-size:15px;color:var(--peach);margin:56px 0 22px}h1{font-size:clamp(42px,5.8vw,78px);font-weight:500;line-height:1.22;letter-spacing:-.05em;margin:0}h1 span,.section-heading h2 span{color:var(--peach)}.hero-intro{font-size:17px;line-height:1.9;color:var(--muted);margin:30px 0}.hero-actions{display:flex;align-items:center;gap:28px;margin:32px 0 64px;font-size:13px}.primary-link{background:#edc2ad;color:#2c1715;border:1px solid #edc2ad;padding:13px 18px;border-radius:5px;display:flex;gap:26px}.voice-case .primary-link:hover{background:#f8d6c3;color:#2c1715}.project-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;border-top:1px solid var(--line);padding-top:24px;margin:0 0 48px}.project-meta dt{font-size:11px;color:#a7897f;margin-bottom:10px}.project-meta dd{font-size:13px;margin:0;color:#e5d0c4;line-height:1.7}.hero-cover{margin:0;container-type:inline-size;border:1px solid var(--line);border-radius:16px;overflow:hidden;max-width:100%;box-shadow:0 30px 80px #0003}.hero-cover :global(.voice-cover){padding:4% 7%}.hero-cover :global(.cover-title){font-size:clamp(30px,4.5cqw,54px);margin:3% 0}.hero-cover :global(.cover-window){transform:none}.hero-cover :global(.mini-row){padding:2.5%}.hero-cover figcaption{font-size:11px;line-height:1.8;background:#211417;color:#b69588;padding:15px 24px}
+  .section{padding:96px 0;border-bottom:1px solid var(--line);scroll-margin-top:20px}.section-heading{margin-bottom:40px}.eyebrow{color:var(--peach);font-size:11px;letter-spacing:.17em;margin:0 0 24px}h2{font-size:clamp(30px,3.6vw,46px);letter-spacing:-.04em;line-height:1.4;font-weight:500;margin:0}h3{font-weight:500;font-size:19px;line-height:1.6;margin:14px 0}p{line-height:1.9}.section-heading>p:last-child:not(.eyebrow){color:var(--muted);font-size:15px;max-width:660px;margin:20px 0 0}#problem{display:grid;grid-template-columns:.9fr 1.1fr;gap:70px}.lead{font-size:19px;color:#e5cdbf;margin:0 0 30px;line-height:1.9}.problem-row{display:grid;grid-template-columns:90px 1fr;gap:16px;border-top:1px solid var(--line);padding:22px 0}.problem-row>span{font-size:13px;color:var(--peach);padding-top:3px}.problem-row p{margin:0;font-size:14px;color:var(--muted)}.evidence-note{font-size:11px;color:#ab8f83;margin-top:18px}.decision-grid,.detail-grid,.validation-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px}.decision-grid article{padding:26px;border:1px solid var(--line);border-radius:12px;background:#231519}.decision-grid article>span{color:#ba8877;font-size:12px}.decision-grid p,.detail-grid p,.validation-grid p{font-size:14px;color:var(--muted);margin:0}.workflow{display:flex;align-items:center;justify-content:space-between;gap:18px;border-block:1px solid var(--line);padding:32px 0;margin-top:48px}.workflow small{display:block;font-size:11px;color:#b99384;margin-bottom:14px}.workflow ol{display:flex;gap:18px;list-style:none;padding:0;margin:0;font-size:13px}.workflow li+li:before{content:'→';margin-right:18px;color:#936c5f}.workflow strong{font-weight:500;font-size:14px}.workflow p{font-size:12px;margin:7px 0 0;color:var(--muted)}.workflow-arrow{color:#b68b78;font-size:24px}.external-step{background:#d6b5a809;padding:18px 24px;border:1px dashed #d6b5a844;border-radius:8px}.boundary-note{display:flex;gap:32px;margin-top:24px;font-size:12px;color:var(--muted)}.boundary-note>span{white-space:nowrap;color:var(--peach);padding-top:3px}.boundary-note p{margin:0}.detail-grid{margin-top:36px}.detail-grid article>span,.validation-grid article>span{font-size:11px;color:#b68b78}.rule-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px}.rule-layout p:not(.lead){font-size:14px;color:var(--muted)}.rule-spec{border-top:1px solid var(--line)}.rule-spec>div{display:grid;grid-template-columns:95px 1fr;gap:20px;border-bottom:1px solid var(--line);padding:20px 0;line-height:1.8;font-size:13px}.rule-spec span{color:#b68b78}.rule-spec strong{font-weight:400}.validation-grid article{padding:26px 0;border-top:1px solid var(--line)}.status-board{margin-top:36px;background:#211518;border:1px solid var(--line);border-radius:12px;padding:12px 28px}.status-board>div{display:grid;grid-template-columns:8px 210px 1fr;align-items:baseline;gap:16px;padding:18px 0}.status-board>div+div{border-top:1px solid var(--line)}.status-dot{width:5px;height:5px;border-radius:100%;background:#d5ad90}.status-dot.next{background:#958178}.status-board strong{font-size:12px;font-weight:400;color:#dec0ae}.status-board p{font-size:12px;color:var(--muted);margin:0}.voice-footer{display:flex;justify-content:space-between;align-items:center;padding:44px 0 60px;gap:24px}.voice-footer p{font-size:16px;margin:0 0 8px}.voice-footer span{font-size:11px;color:#a3877b}.voice-footer a{font-size:13px;color:var(--peach)}
+  @media(max-width:950px){.wrap{width:calc(100% - 56px)}#problem{gap:32px;grid-template-columns:1fr 1fr}.decision-grid,.detail-grid,.validation-grid{gap:18px}.decision-grid article{padding:20px}.workflow{flex-wrap:wrap}.workflow>div:first-child{flex-basis:100%}.workflow>.workflow-arrow:first-of-type{display:none}.rule-layout{gap:36px}.project-meta{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:600px){.wrap{width:calc(100% - 36px)}.voice-nav{height:64px;padding:0 20px}.voice-nav nav{display:none}.voice-hero{padding-top:32px}.hero-top{font-size:9px;align-items:flex-start}.stage-label{font-size:10px}.hero-name{margin-top:38px}h1{font-size:38px}.hero-intro{font-size:15px}.desktop-break{display:none}.hero-actions{gap:18px;flex-wrap:wrap;margin-bottom:40px}.hero-cover{border-radius:10px}.hero-cover figcaption{padding:12px 14px;font-size:10px}.section{padding:60px 0}#problem,.rule-layout,.decision-grid,.detail-grid,.validation-grid{grid-template-columns:1fr;gap:24px}.section-heading{margin-bottom:24px}#problem .section-heading{margin-bottom:0}.lead{font-size:17px}.project-meta{gap:20px}.project-meta dd{font-size:12px}.problem-row{grid-template-columns:76px 1fr;gap:10px}.workflow{gap:18px}.workflow ol{gap:8px;font-size:12px}.workflow li+li:before{margin-right:8px}.external-step{padding:14px}.boundary-note{gap:14px}.rule-spec>div{grid-template-columns:80px 1fr;gap:12px}.status-board{padding:8px 18px}.status-board>div{grid-template-columns:8px 1fr;gap:10px}.status-board p{grid-column:2}.voice-footer{align-items:flex-start;flex-direction:column}.voice-footer p{font-size:14px}}
+  @media(prefers-reduced-motion:reduce){:global(html:has(.voice-case)){scroll-behavior:auto}}
+</style>

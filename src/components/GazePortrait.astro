@@ -1,0 +1,167 @@
+---
+// The original portrait is the visible fallback. Only the eye interiors are repainted.
+---
+<figure class="gaze-scene" data-gaze-scene>
+  <img src="/profile/eye-follow-v1/hero-original.png" width="1672" height="941" alt="Yukie的数字人形象" fetchpriority="high" />
+  <canvas width="1672" height="941" aria-hidden="true" data-gaze-canvas></canvas>
+</figure>
+
+<script>
+  const scene = document.querySelector<HTMLElement>('[data-gaze-scene]');
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-gaze-canvas]');
+  const ctx = canvas?.getContext('2d');
+  const status = document.querySelector<HTMLElement>('[data-gaze-status]');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (scene && canvas && ctx) {
+    const original = new Image();
+    original.src = '/profile/eye-follow-v1/hero-original.png';
+
+    // All landmarks use source-image coordinates, so gaze remains aligned at any size.
+    const eyes = [
+      {
+        opening: new Path2D('M1097 425 C1115 402 1153 400 1175 425 Q1184 435 1187 443 C1156 459 1118 453 1097 425Z'),
+        box: { x: 1090, y: 397, width: 104, height: 64 },
+      },
+      {
+        opening: new Path2D('M1288 440 C1294 419 1310 405 1332 404 Q1353 401 1366 410 C1370 429 1354 445 1335 448 Q1307 453 1288 440Z'),
+        box: { x: 1281, y: 397, width: 94, height: 62 },
+      },
+    ];
+    const target = { x: 0, y: 0 };
+    const current = { x: 0, y: 0 };
+    let frame = 0;
+    let previousTime = 0;
+    let ready = false;
+    let mode = 'original';
+    type EyePatch = { source: Uint8ClampedArray; mask: Uint8ClampedArray; distance: Float32Array; output: ImageData; layer: HTMLCanvasElement; context: CanvasRenderingContext2D };
+    const patches: EyePatch[] = [];
+
+    const paint = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (mode === 'original' || (Math.abs(current.x) + Math.abs(current.y) < 0.001)) return;
+      eyes.forEach((eye, index) => {
+        const b = eye.box;
+        const patch = patches[index];
+        // A restrained deformation of the original eye keeps its own iris, pupil,
+        // reflections and perspective. No synthetic circular eye is pasted over it.
+        const dx = current.x * (current.x > 0 ? 8 : 3);
+        const dy = current.y * 2.5;
+        for (let y = 0; y < b.height; y++) for (let x = 0; x < b.width; x++) {
+          const pixel = y*b.width+x, offset = pixel*4;
+          const d = patch.distance[pixel];
+          const t = Math.min(1, d/10);
+          const influence = t*t*(3-2*t);
+          const sx = Math.max(0,Math.min(b.width-1.001,x-dx*influence));
+          const sy = Math.max(0,Math.min(b.height-1.001,y-dy*influence));
+          const x0 = Math.floor(sx), y0 = Math.floor(sy), fx=sx-x0, fy=sy-y0;
+          const a = (y0*b.width+x0)*4;
+          for(let c=0;c<3;c++) {
+            const top = patch.source[a+c]*(1-fx)+patch.source[a+4+c]*fx;
+            const bottom = patch.source[a+b.width*4+c]*(1-fx)+patch.source[a+b.width*4+4+c]*fx;
+            patch.output.data[offset+c] = top*(1-fy)+bottom*fy;
+          }
+          patch.output.data[offset+3] = patch.mask[offset+3]*Math.min(1,d/2);
+        }
+        patch.context.putImageData(patch.output,0,0);
+        ctx.drawImage(patch.layer,b.x,b.y);
+      });
+    };
+    const tick = (time: number) => {
+      const elapsed = previousTime ? Math.min(time-previousTime, 50) : 16.7;
+      previousTime = time;
+      const blend = 1 - Math.exp(-elapsed / 95);
+      current.x += (target.x-current.x)*blend;
+      current.y += (target.y-current.y)*blend;
+      paint();
+      if (Math.abs(target.x-current.x)+Math.abs(target.y-current.y) > 0.001) {
+        frame = requestAnimationFrame(tick);
+      } else {
+        frame = 0;
+        previousTime = 0;
+      }
+    };
+    const moveTo = (x: number, y: number) => {
+      target.x = Math.max(-1, Math.min(1, x));
+      target.y = Math.max(-1, Math.min(1, y));
+      if (!ready) return;
+      if (reduced.matches) {
+        current.x = target.x; current.y = target.y; paint();
+      } else if (!frame) frame = requestAnimationFrame(tick);
+    };
+    const updateMode = (nextMode: string) => {
+      mode = nextMode;
+      document.querySelectorAll<HTMLButtonElement>('[data-gaze-mode]').forEach(button => {
+        button.setAttribute('aria-pressed', String(button.dataset.gazeMode === mode));
+      });
+      const poses: Record<string, [number, number]> = {
+        left: [-1, 0], right: [1, 0], up: [0, -1], down: [0, 1], center: [0,0], original: [0,0], follow: [0,0],
+      };
+      const pose = poses[mode] || [0,0];
+      moveTo(...pose);
+      if (ready) paint();
+      if (status) status.textContent = mode === 'follow' ? '轻微视线跟随 · 保留原图眼神' : mode === 'original' ? '原图眼神 · 点击按钮对比轻微动态' : '轻微视线预览';
+    };
+
+    original.decode().then(() => {
+      eyes.forEach(eye => {
+        const b=eye.box;
+        const layer = document.createElement('canvas');
+        layer.width=b.width; layer.height=b.height;
+        const context=layer.getContext('2d',{willReadFrequently:true})!;
+        context.drawImage(original,b.x,b.y,b.width,b.height,0,0,b.width,b.height);
+        const source=context.getImageData(0,0,b.width,b.height).data;
+        context.clearRect(0,0,b.width,b.height);
+        context.save(); context.translate(-b.x,-b.y); context.fill(eye.opening); context.restore();
+        const mask=context.getImageData(0,0,b.width,b.height).data;
+        const distance=new Float32Array(b.width*b.height);
+        for(let i=0;i<distance.length;i++) distance[i]=mask[i*4+3]>240?1000:0;
+        // Chamfer distance to the stationary lid boundary; fade displacement to zero there.
+        for(let y=1;y<b.height;y++) for(let x=1;x<b.width;x++) {
+          const i=y*b.width+x;
+          distance[i]=Math.min(distance[i],distance[i-1]+1,distance[i-b.width]+1,distance[i-b.width-1]+1.414);
+        }
+        for(let y=b.height-2;y>=0;y--) for(let x=b.width-2;x>=0;x--) {
+          const i=y*b.width+x;
+          distance[i]=Math.min(distance[i],distance[i+1]+1,distance[i+b.width]+1,distance[i+b.width+1]+1.414);
+        }
+        patches.push({source,mask,distance,output:new ImageData(b.width,b.height),layer,context});
+      });
+      ready = true;
+      scene.dataset.ready = 'true';
+      updateMode(mode);
+      document.querySelectorAll<HTMLButtonElement>('[data-gaze-mode]').forEach(button => {
+        button.disabled = false;
+        button.addEventListener('click', () => updateMode(button.dataset.gazeMode!));
+      });
+    }).catch(() => {
+      if (status) status.textContent = '当前显示原图，动态素材暂未加载';
+      scene.dataset.ready = 'false';
+    });
+
+    window.addEventListener('pointermove', event => {
+      if (mode !== 'follow' || event.pointerType === 'touch' || reduced.matches) return;
+      const rect = scene.getBoundingClientRect();
+      const gazeX = rect.left + rect.width * (1235/1672);
+      const gazeY = rect.top + rect.height * (426/941);
+      moveTo((event.clientX-gazeX)/(rect.width*0.37), (event.clientY-gazeY)/(rect.height*0.45));
+    }, { passive: true });
+    document.documentElement.addEventListener('pointerleave', () => { if (mode==='follow') moveTo(0,0); });
+    window.addEventListener('blur', () => { if (mode==='follow') moveTo(0,0); });
+    reduced.addEventListener('change', () => { if (reduced.matches) updateMode('center'); });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && frame) { cancelAnimationFrame(frame); frame=0; previousTime=0; }
+      else if (!document.hidden && ready) moveTo(target.x,target.y);
+    });
+  }
+</script>
+
+<style>
+  .gaze-scene { position:absolute; inset:0 0 auto auto; margin:0; width:max(100vw, 177.68svh); height:100svh; pointer-events:none; }
+  img, canvas { position:absolute; inset:0; width:100%; height:100%; display:block; }
+  canvas { opacity:0; }
+  .gaze-scene[data-ready="true"] canvas { opacity:1; }
+  @media(max-width:900px) {
+    .gaze-scene { width:1050px; height:591px; right:-145px; top:35px; }
+  }
+</style>
